@@ -24,7 +24,7 @@ class Model: ObservableObject {
     @Published var updateProgress: TimedProgress?
     @Published var buttonPressCounter = -2
     @Published var selectedServerName = "Will"
-    @Published var serverIP = "192.168.1.140"
+    @Published var serverIP = "192.168.1.83"
 
     @Published var alertError: Error? { didSet { showingAlert = (alertError != nil) } }
     @Published var showingAlert: Bool = false
@@ -62,7 +62,7 @@ class Model: ObservableObject {
         request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
         
         // Create metadata as JSON
-        let metadata = ["depth": depth.value]
+        let metadata = ["max_probe_depth": depth.value]
         let jsonData = try? JSONSerialization.data(withJSONObject: metadata)
         
         request.setValue("application/json", forHTTPHeaderField: "X-Metadata-Content-Type")
@@ -299,7 +299,7 @@ class Model: ObservableObject {
     
     func getAvailableServers() -> [String: String] {
         return [
-            "Monty 1": "192.168.1.140"
+            "Monty 1": "192.168.1.83"
         ]
     }
     

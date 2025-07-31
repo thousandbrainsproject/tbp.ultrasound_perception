@@ -88,7 +88,7 @@ if LOAD_LOGGING_DATA:
     tracker_positions = logging_data["tracker_position"]
     probe_positions = logging_data["probe_position"]
     tracker_orientations = logging_data["tracker_orientation"]
-    image_depths = logging_data["depth"]
+    image_depths = logging_data["max_probe_depth"]
     normals_rel_sensor = logging_data["normal_rel_sensor"]
 
     patch_rel_world = []
