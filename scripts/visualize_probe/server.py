@@ -27,7 +27,7 @@ except Exception as e:
     )
     sys.exit(1)
 
-POSE_ENDPOINT = f"{VIVE_SERVER_URL}/pose"
+POSE_ENDPOINT = f"http://{VIVE_SERVER_URL}:3001/pose"
 
 # Global variable to store the latest goal state
 latest_goal_state = None
