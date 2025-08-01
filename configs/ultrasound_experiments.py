@@ -9,6 +9,7 @@
 import math
 import os
 from copy import deepcopy
+import sys
 
 import numpy as np
 from tbp.monty.frameworks.actions.action_samplers import ConstantSampler
@@ -89,7 +90,7 @@ default_evidence_lm_config = {
     },
 }
 
-num_pretrain_steps = 184
+num_pretrain_steps = 200
 
 # Base experiment for experimenting. This isns't really used anymore beside for the
 # other experiments to inherit from.
@@ -190,7 +191,7 @@ LM_config_for_learning = {
             "tolerance": np.ones(3) * 0.0001,
             "graph_delta_thresholds": {
                 "patch": {
-                    "distance": 0.01,
+                    "distance": 0.001,
                     "pose_vectors": [np.pi / 8, np.pi * 2, np.pi * 2],
                     "curvature": [1.0, 1.0],
                 }
@@ -232,6 +233,12 @@ json_dataset_ultrasound_learning_meat_can["monty_config"]["monty_class"] = (
     MontyForGraphMatching
 )
 
+json_dataset_ultrasound_learning_new_meat_can = deepcopy(json_dataset_ultrasound_learning_meat_can)
+json_dataset_ultrasound_learning_new_meat_can["dataset_args"]["env_init_args"]["data_path"] = os.path.join(
+    os.environ["MONTY_DATA"],
+    "ultrasound_train_set/new_potted_meat/",
+)
+
 json_dataset_ultrasound_learning_numenta_mug = deepcopy(
     json_dataset_ultrasound_learning_meat_can
 )
@@ -269,6 +276,17 @@ evidence_lm_config_with_gsg["learning_module_args"]["gsg_args"] = {
     # agent that is considered "close enough" to the object
 }
 
+try:
+    VIVE_SERVER_URL = os.environ.get("VIVE_SERVER_URL")
+except Exception as e:
+    print(f"Error getting VIVE_SERVER_URL from environment: {e}")
+    print(
+        "Please set the VIVE_SERVER_URL environment variable, e.g. VIVE_SERVER_URL='http://192.168.1.237:3001'"
+    )
+    sys.exit(1)
+
+POSE_ENDPOINT = f"http://{VIVE_SERVER_URL}:3001/pose"
+
 probe_triggered_experiment = deepcopy(base_ultrasound_experiment)
 probe_triggered_experiment["dataset_args"]["env_init_func"] = (
     ProbeTriggeredUltrasoundEnvironment
@@ -276,7 +294,7 @@ probe_triggered_experiment["dataset_args"]["env_init_func"] = (
 probe_triggered_experiment["dataset_args"]["env_init_args"] = {
     "image_listen_port": 3000,
     "save_path": os.path.join(os.environ["MONTY_DATA"], "ultrasound_test_set/"),
-    "vive_url": "http://192.168.1.40:3001/pose",
+    "vive_url": POSE_ENDPOINT,
 }
 probe_triggered_experiment["monty_config"]["learning_module_configs"] = {
     "learning_module_0": evidence_lm_config_with_gsg
@@ -314,13 +332,14 @@ probe_triggered_data_collection_experiment["monty_config"]["monty_args"] = Monty
 
 # Override plotting config to enable plotting for probe triggered experiments
 probe_triggered_data_collection_experiment["plotting_config"] = PlottingConfig(
-    enabled=False
+    enabled=True
 )
 
 CONFIGS = {
     "base_ultrasound_experiment": base_ultrasound_experiment,
     "json_dataset_ultrasound_experiment": json_dataset_ultrasound_experiment,
     "json_dataset_ultrasound_learning_meat_can": json_dataset_ultrasound_learning_meat_can,
+    "json_dataset_ultrasound_learning_new_meat_can": json_dataset_ultrasound_learning_new_meat_can,
     "json_dataset_ultrasound_learning_numenta_mug": json_dataset_ultrasound_learning_numenta_mug,
     "probe_triggered_experiment": probe_triggered_experiment,  # Default of only a few eval steps --> can use for demo
     "probe_triggered_data_collection_experiment": probe_triggered_data_collection_experiment,
