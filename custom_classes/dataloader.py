@@ -164,8 +164,10 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
 
             # Note we use the initial y position of the patch for the depth,
             # as later we will determine the location of the edge within the patch for
-            # the final depth reading
-            starting_y = y - test_patch_size // 2
+            # the final depth reading; note this should use the patch_size, not the
+            # test_patch_size, as it defines the starting y of the patch that we 
+            # will return
+            starting_y = y - patch_size // 2
             y_starting_positions.append(starting_y)
             y_central_positions.append(y)
             gradients.append(total_gradient)
