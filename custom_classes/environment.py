@@ -228,7 +228,7 @@ class JSONDatasetUltrasoundEnvironment(UltrasoundEnvironment):
         # (If used during data collection)
         # TODO: this just looked like it gave the best results but it is not ideal yet.
         data["state"]["agent_id_0"]["sensors"]["ultrasound"]["position"] = np.array(
-            [0, 0.028, 0.111]
+            [0, 0.028, 0.114]
         )
         return data["obs"], data["state"]
 
