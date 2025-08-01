@@ -2,6 +2,7 @@ import copy
 import json
 import os
 from typing import Any, Dict
+import sys
 
 import cv2
 import numpy as np
@@ -13,6 +14,16 @@ from tbp.monty.frameworks.models.buffer import BufferEncoder
 from custom_classes.environment import UltrasoundEnvironment
 from custom_classes.server import ImageServer
 
+try:
+    VIVE_SERVER_URL = os.environ.get("VIVE_SERVER_URL")
+except Exception as e:
+    print(f"Error getting VIVE_SERVER_URL from environment: {e}")
+    print(
+        "Please set the VIVE_SERVER_URL environment variable, e.g. VIVE_SERVER_URL='http://192.168.1.237:3001'"
+    )
+    sys.exit(1)
+
+POSE_ENDPOINT = f"http://{VIVE_SERVER_URL}:3001/pose"
 
 class ProbeTriggeredUltrasoundEnvironment(UltrasoundEnvironment):
     def __init__(
@@ -80,7 +91,7 @@ class ProbeTriggeredUltrasoundEnvironment(UltrasoundEnvironment):
                 "sensors": {
                     "ultrasound": {
                         "rotation": qt.quaternion(1, 0, 0, 0),  # Identity quaternion
-                        "position": np.array([0, 0.028, 0.111]),
+                        "position": np.array([0, 0.028, 0.114]),
                     },
                 },
                 "rotation": agent_rotation,
