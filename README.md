@@ -145,8 +145,10 @@ To continue inference with a subsequent object
 
 You can find more information on how we customized Monty for this usecase in the writeup [here](./custom_classes/How_Monty_is_Customized.md).
 
-TODO: Link to our docs showcase
-TODO: Link to YouTube videos
+
+See the project on our [showcase page](https://thousandbrainsproject.readme.io/docs/project-showcase)
+
+[![Watch the video](https://img.youtube.com/vi/-zrq0oTJudo/sddefault.jpg)](https://youtu.be/-zrq0oTJudo)
 
 ## Development
 
