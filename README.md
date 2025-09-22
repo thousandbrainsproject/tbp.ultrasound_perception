@@ -12,7 +12,7 @@ To create the environment, run:
 ```
 conda env create -f environment.yml --subdir=osx-64
 conda init zsh
-conda activate itsnotatumah
+conda activate ultrasound_perception
 conda config --env --set subdir osx-64
 ```
 
@@ -20,7 +20,7 @@ conda config --env --set subdir osx-64
 ```
 conda env create -f environment.yml --subdir=osx-64
 conda init
-conda activate itsnotatumah
+conda activate ultrasound_perception
 conda config --env --set subdir osx-64
 ```
 
@@ -28,14 +28,14 @@ conda config --env --set subdir osx-64
 ```
 conda env create -f environment.yml
 conda init zsh
-conda activate itsnotatumah
+conda activate ultrasound_perception
 ```
 
 ### Intel (bash shell)
 ```
 conda env create -f environment.yml
 conda init
-conda activate itsnotatumah
+conda activate ultrasound_perception
 ```
 
 ## Experiments
