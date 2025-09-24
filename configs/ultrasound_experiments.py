@@ -59,6 +59,7 @@ model_path_tbp_robot_lab = os.path.join(
     "surf_agent_1lm_tbp_robot_lab/pretrained/",
 )
 
+# ===== BASE CONFIGS =====
 
 default_evidence_lm_config = {
     "learning_module_class": EvidenceGraphLM,
@@ -92,8 +93,6 @@ default_evidence_lm_config = {
 
 num_pretrain_steps = 200
 
-# Base experiment for experimenting. This isns't really used anymore beside for the
-# other experiments to inherit from.
 base_ultrasound_experiment = {
     "experiment_class": UltrasoundExperiment,
     "experiment_args": EvalExperimentArgs(
@@ -103,7 +102,7 @@ base_ultrasound_experiment = {
     ),
     "logging_config": ParallelEvidenceLMLoggingConfig(
         wandb_group="benchmark_experiments",
-        # Comment in for quick debugging (turns of wandb and increases logging)
+        # Comment in for quick debugging (turns off wandb and increases logging)
         wandb_handlers=[],
         monty_handlers=[],
         monty_log_level="SILENT",
@@ -165,21 +164,46 @@ base_ultrasound_experiment = {
     "eval_dataloader_args": {"patch_size": 256},
 }
 
+# ===== SIM-TO-REAL INFERENCE CONFIGS =====
+
 # Experiment for testing offline on a dataset that was collected with the ultrasound
 # probe and saved to JSON files. Can be used to experiment without having the whole
-# ultrasounds and tracking set up and for repeatable experiments.
-json_dataset_ultrasound_experiment = deepcopy(base_ultrasound_experiment)
-json_dataset_ultrasound_experiment["dataset_args"]["env_init_func"] = (
-    JSONDatasetUltrasoundEnvironment
+# ultrasound and tracking set up and for repeatable experiments.
+# Here weun evaluation with the potted meat can points collected using our updated
+# ultrasound pipeline, which has less noise in the observations.
+json_dataset_ultrasound_infer_sim2real_potted_meat_can = deepcopy(
+    base_ultrasound_experiment
 )
-json_dataset_ultrasound_experiment["dataset_args"]["env_init_args"] = {
+json_dataset_ultrasound_infer_sim2real_potted_meat_can["dataset_args"][
+    "env_init_func"
+] = JSONDatasetUltrasoundEnvironment
+json_dataset_ultrasound_infer_sim2real_potted_meat_can["dataset_args"][
+    "env_init_args"
+] = {
     "data_path": os.path.join(
-        os.environ["MONTY_DATA"], "ultrasound_test_set/demo_object_spam/"
+        os.environ["MONTY_DATA"], "ultrasound_test_set/potted_meat_can/"
     ),
-    # "data_path": os.path.join(
-    #     os.environ["MONTY_DATA"], "ultrasound_train_set/potted_meat_can_cleaned/"
-    # ),
 }
+json_dataset_ultrasound_infer_sim2real_potted_meat_can["monty_config"]["monty_args"] = (
+    MontyArgs(
+        min_eval_steps=199,
+        num_exploratory_steps=num_pretrain_steps,
+    )
+)
+
+# Run evaluation with the potted meat can points collected during the Crete hackathon
+# (200 noisy points)
+json_dataset_ultrasound_infer_sim2real_potted_meat_can_old = deepcopy(
+    json_dataset_ultrasound_infer_sim2real_potted_meat_can
+)
+json_dataset_ultrasound_infer_sim2real_potted_meat_can_old["dataset_args"][
+    "env_init_args"
+]["data_path"] = os.path.join(
+    os.environ["MONTY_DATA"], "ultrasound_test_set/potted_meat_can_old/"
+)
+
+
+# ===== LEARNING ON ULTRASOUND DATA CONFIGS =====
 
 # For learning we use the DisplacementGraphLM.
 LM_config_for_learning = {
@@ -200,8 +224,10 @@ LM_config_for_learning = {
     }
 }
 # Loads an offline .json dataset and trains models on it.
-json_dataset_ultrasound_learning_meat_can = deepcopy(json_dataset_ultrasound_experiment)
-json_dataset_ultrasound_learning_meat_can.update(
+json_dataset_ultrasound_learning_potted_meat_can = deepcopy(
+    json_dataset_ultrasound_infer_sim2real_potted_meat_can
+)
+json_dataset_ultrasound_learning_potted_meat_can.update(
     {
         "experiment_args": EvalExperimentArgs(
             do_train=True,
@@ -215,7 +241,7 @@ json_dataset_ultrasound_learning_meat_can.update(
             "env_init_args": {
                 "data_path": os.path.join(
                     os.environ["MONTY_DATA"],
-                    "ultrasound_train_set/potted_meat_can_cleaned/",
+                    "ultrasound_train_set/potted_meat_can/",
                 ),
             },
         },
@@ -226,38 +252,31 @@ json_dataset_ultrasound_learning_meat_can.update(
         ),
     }
 )
-json_dataset_ultrasound_learning_meat_can["monty_config"]["learning_module_configs"] = (
-    LM_config_for_learning
-)
-json_dataset_ultrasound_learning_meat_can["monty_config"]["monty_class"] = (
+json_dataset_ultrasound_learning_potted_meat_can["monty_config"][
+    "learning_module_configs"
+] = LM_config_for_learning
+json_dataset_ultrasound_learning_potted_meat_can["monty_config"]["monty_class"] = (
     MontyForGraphMatching
 )
 
-json_dataset_ultrasound_learning_new_meat_can = deepcopy(json_dataset_ultrasound_learning_meat_can)
-json_dataset_ultrasound_learning_new_meat_can["dataset_args"]["env_init_args"]["data_path"] = os.path.join(
+json_dataset_ultrasound_learning_potted_meat_can_old = deepcopy(
+    json_dataset_ultrasound_learning_potted_meat_can
+)
+json_dataset_ultrasound_learning_potted_meat_can_old["dataset_args"]["env_init_args"][
+    "data_path"
+] = os.path.join(
     os.environ["MONTY_DATA"],
-    "ultrasound_train_set/new_potted_meat/",
+    "ultrasound_train_set/potted_meat_can_old/",
 )
 
-json_dataset_ultrasound_learning_numenta_mug = deepcopy(
-    json_dataset_ultrasound_learning_meat_can
-)
-json_dataset_ultrasound_learning_numenta_mug.update(
-    {
-        "dataset_args": {
-            "env_init_func": JSONDatasetUltrasoundEnvironment,
-            "env_init_args": {
-                "data_path": os.path.join(
-                    os.environ["MONTY_DATA"],
-                    "ultrasound_train_set/numenta_mug/",
-                ),
-            },
-        },
-    }
-)
+# ===== PROBE-TRIGGERED EXPERIMENTS =====
 
-# Define an experiment that is interactively triggered by use of the probe
-# Also makes use of goal-state generation.
+# Define an experiment that is interactively triggered by use of the probe. Any
+# observations are saved, forming a potential starting piont for a dataset for a
+# particular object. This pipeline is semi-manual, as the operator needs to move
+# these observations into a directory appropriate for the particular object.
+# Also makes use of goal-state generation. The provided goal states can be visualized
+# by the user in the 3D visualization of the phantom setup.
 
 evidence_lm_config_with_gsg = deepcopy(default_evidence_lm_config)
 evidence_lm_config_with_gsg["learning_module_args"]["gsg_args"] = {
@@ -287,22 +306,22 @@ except Exception as e:
 
 POSE_ENDPOINT = f"http://{VIVE_SERVER_URL}:3001/pose"
 
-probe_triggered_experiment = deepcopy(base_ultrasound_experiment)
-probe_triggered_experiment["dataset_args"]["env_init_func"] = (
+base_probe_triggered_experiment = deepcopy(base_ultrasound_experiment)
+base_probe_triggered_experiment["dataset_args"]["env_init_func"] = (
     ProbeTriggeredUltrasoundEnvironment
 )
-probe_triggered_experiment["dataset_args"]["env_init_args"] = {
+base_probe_triggered_experiment["dataset_args"]["env_init_args"] = {
     "image_listen_port": 3000,
-    "save_path": os.path.join(os.environ["MONTY_DATA"], "ultrasound_test_set/"),
+    "save_path": os.path.join(os.environ["MONTY_DATA"], "ultrasound_data_collection/"),
     "vive_url": POSE_ENDPOINT,
 }
-probe_triggered_experiment["monty_config"]["learning_module_configs"] = {
+base_probe_triggered_experiment["monty_config"]["learning_module_configs"] = {
     "learning_module_0": evidence_lm_config_with_gsg
 }
-probe_triggered_experiment["monty_config"]["monty_class"] = (
+base_probe_triggered_experiment["monty_config"]["monty_class"] = (
     MontyForEvidenceGraphMatchingWithGoalStateServer
 )
-probe_triggered_experiment["monty_config"]["motor_system_config"] = {
+base_probe_triggered_experiment["monty_config"]["motor_system_config"] = {
     "motor_system_class": MotorSystem,
     "motor_system_args": {
         "policy_class": UltrasoundMotorPolicy,
@@ -316,31 +335,42 @@ probe_triggered_experiment["monty_config"]["motor_system_config"] = {
 }
 
 # Override plotting config to enable plotting for probe triggered experiments
-probe_triggered_experiment["plotting_config"] = PlottingConfig(
+base_probe_triggered_experiment["plotting_config"] = PlottingConfig(
     enabled=True,
-    save_path=os.path.join(os.environ["MONTY_DATA"], "ultrasound_test_set/plots"),
+    save_path=os.path.join(
+        os.environ["MONTY_DATA"], "ultrasound_data_collection/plots"
+    ),
     plot_frequency=1,
     plot_patch_features=True,
     show_hypothesis_space=True,
 )
 
-probe_triggered_data_collection_experiment = deepcopy(probe_triggered_experiment)
-probe_triggered_data_collection_experiment["monty_config"]["monty_args"] = MontyArgs(
+# Collect data for offline learning - more eval steps, enabling more points to be
+# collected. NOTE that the operator should aim for a systematic exploration of the
+# object, as this will be crucial for the quality of the learned model.
+probe_triggered_data_collection_for_learning = deepcopy(base_probe_triggered_experiment)
+probe_triggered_data_collection_for_learning["monty_config"]["monty_args"] = MontyArgs(
     min_eval_steps=200, num_exploratory_steps=num_pretrain_steps
 )
 
-
-# Override plotting config to enable plotting for probe triggered experiments
-probe_triggered_data_collection_experiment["plotting_config"] = PlottingConfig(
-    enabled=True
+# Collect data for offline inference - fewer eval steps, since we are interested
+# in the ability to perform inference given a minimal exploration of the object.
+# NOTE that the operator should aim for a rapid exploration of the object, e.g.
+# frequently moving from one side of an object to the other, and making sure to include
+# features that would distinguish different objects.
+probe_triggered_data_collection_for_inference = deepcopy(
+    base_probe_triggered_experiment
+)
+probe_triggered_data_collection_for_inference["monty_config"]["monty_args"] = MontyArgs(
+    min_eval_steps=50, num_exploratory_steps=num_pretrain_steps
 )
 
+
 CONFIGS = {
-    "base_ultrasound_experiment": base_ultrasound_experiment,
-    "json_dataset_ultrasound_experiment": json_dataset_ultrasound_experiment,
-    "json_dataset_ultrasound_learning_meat_can": json_dataset_ultrasound_learning_meat_can,
-    "json_dataset_ultrasound_learning_new_meat_can": json_dataset_ultrasound_learning_new_meat_can,
-    "json_dataset_ultrasound_learning_numenta_mug": json_dataset_ultrasound_learning_numenta_mug,
-    "probe_triggered_experiment": probe_triggered_experiment,  # Default of only a few eval steps --> can use for demo
-    "probe_triggered_data_collection_experiment": probe_triggered_data_collection_experiment,
+    "json_dataset_ultrasound_infer_sim2real_potted_meat_can": json_dataset_ultrasound_infer_sim2real_potted_meat_can,
+    "json_dataset_ultrasound_infer_sim2real_potted_meat_can_old": json_dataset_ultrasound_infer_sim2real_potted_meat_can_old,
+    "json_dataset_ultrasound_learning_potted_meat_can": json_dataset_ultrasound_learning_potted_meat_can,
+    "json_dataset_ultrasound_learning_potted_meat_can_old": json_dataset_ultrasound_learning_potted_meat_can_old,
+    "probe_triggered_data_collection_for_learning": probe_triggered_data_collection_for_learning,
+    "probe_triggered_data_collection_experiment_for_inference": probe_triggered_data_collection_for_inference,
 }
