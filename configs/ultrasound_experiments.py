@@ -109,7 +109,7 @@ base_ultrasound_experiment = {
         python_log_level="DEBUG",
     ),
     "plotting_config": PlottingConfig(
-        enabled=True,
+        enabled=False,
         save_path=os.path.join(os.environ["MONTY_DATA"], "ultrasound_test_set/plots"),
         plot_frequency=1,
         plot_patch_features=True,
@@ -186,7 +186,7 @@ json_dataset_ultrasound_infer_sim2real_potted_meat_can["dataset_args"][
 }
 json_dataset_ultrasound_infer_sim2real_potted_meat_can["monty_config"]["monty_args"] = (
     MontyArgs(
-        min_eval_steps=199,
+        min_eval_steps=199,  # Ensure all points are used for inference
         num_exploratory_steps=num_pretrain_steps,
     )
 )
