@@ -16,15 +16,24 @@ import sys
 def import_config_from_monty(config_file, config_name):
     """Import config from tbp.monty.
 
-    NOTE: This looks at the local tbp.monty directory, not the installed version.
-    TODO: Make this use the installed version. This currently doesn't work since the
-    benchmarks/configs directory is not installed.
+    NOTE: This looks at a local copy of the defualts that used to be found in the
+    tbp.monty directory.
+    TODO: Remove this as part of movement to using new Hydra configs.
     """
-    full_path = os.path.expanduser(f"~/tbp/tbp.monty/benchmarks/configs/{config_file}")
-    sys.path.insert(0, os.path.expanduser("~/tbp/tbp.monty"))
-    spec = importlib.util.spec_from_file_location(
-        os.path.basename(config_file), full_path
+    # Get the directory of the current file (config_utils.py)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(current_dir, "tbp_monty_pre_hydra_configs", config_file)
+
+    # Create proper module name for package structure
+    module_name = (
+        f"configs.tbp_monty_pre_hydra_configs.{os.path.splitext(config_file)[0]}"
     )
+
+    spec = importlib.util.spec_from_file_location(module_name, full_path)
     module = importlib.util.module_from_spec(spec)
+
+    # Add to sys.modules so relative imports work
+    sys.modules[module_name] = module
+
     spec.loader.exec_module(module)
     return getattr(module, config_name)
