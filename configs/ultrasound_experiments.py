@@ -223,11 +223,14 @@ LM_config_for_learning = {
         },
     }
 }
+
+OBJECT_FOR_LEARNING = "tuna_can"
+
 # Loads an offline .json dataset and trains models on it.
-json_dataset_ultrasound_learning_potted_meat_can = deepcopy(
+json_dataset_ultrasound_learning = deepcopy(
     json_dataset_ultrasound_infer_sim2real_potted_meat_can
 )
-json_dataset_ultrasound_learning_potted_meat_can.update(
+json_dataset_ultrasound_learning.update(
     {
         "experiment_args": EvalExperimentArgs(
             do_train=True,
@@ -241,7 +244,7 @@ json_dataset_ultrasound_learning_potted_meat_can.update(
             "env_init_args": {
                 "data_path": os.path.join(
                     os.environ["MONTY_DATA"],
-                    "ultrasound_train_set/potted_meat_can/",
+                    f"ultrasound_train_set/{OBJECT_FOR_LEARNING}/",
                 ),
             },
         },
@@ -252,21 +255,20 @@ json_dataset_ultrasound_learning_potted_meat_can.update(
         ),
     }
 )
-json_dataset_ultrasound_learning_potted_meat_can["monty_config"][
-    "learning_module_configs"
-] = LM_config_for_learning
-json_dataset_ultrasound_learning_potted_meat_can["monty_config"]["monty_class"] = (
-    MontyForGraphMatching
+json_dataset_ultrasound_learning["monty_config"]["learning_module_configs"] = (
+    LM_config_for_learning
 )
+json_dataset_ultrasound_learning["monty_config"]["monty_class"] = MontyForGraphMatching
 
-json_dataset_ultrasound_learning_potted_meat_can_old = deepcopy(
-    json_dataset_ultrasound_learning_potted_meat_can
+# Learn with datapoints intended for inference; used to sanity check the quality of
+# the collected dataset
+json_dataset_ultrasound_learning_inference_data = deepcopy(
+    json_dataset_ultrasound_learning
 )
-json_dataset_ultrasound_learning_potted_meat_can_old["dataset_args"]["env_init_args"][
+json_dataset_ultrasound_learning_inference_data["dataset_args"]["env_init_args"][
     "data_path"
 ] = os.path.join(
-    os.environ["MONTY_DATA"],
-    "ultrasound_train_set/potted_meat_can_old/",
+    os.environ["MONTY_DATA"], f"ultrasound_test_set/{OBJECT_FOR_LEARNING}/"
 )
 
 # ===== PROBE-TRIGGERED EXPERIMENTS =====
@@ -348,9 +350,17 @@ base_probe_triggered_experiment["plotting_config"] = PlottingConfig(
 # Collect data for offline learning - more eval steps, enabling more points to be
 # collected. NOTE that the operator should aim for a systematic exploration of the
 # object, as this will be crucial for the quality of the learned model.
+LEARNING_DATA_POINTS = 200
 probe_triggered_data_collection_for_learning = deepcopy(base_probe_triggered_experiment)
 probe_triggered_data_collection_for_learning["monty_config"]["monty_args"] = MontyArgs(
-    min_eval_steps=200, num_exploratory_steps=num_pretrain_steps
+    min_eval_steps=LEARNING_DATA_POINTS,
+    max_total_steps=LEARNING_DATA_POINTS + 1,
+    num_exploratory_steps=num_pretrain_steps,
+)
+probe_triggered_data_collection_for_learning["experiment_args"] = EvalExperimentArgs(
+    model_name_or_path=model_path_tbp_robot_lab,
+    n_eval_epochs=1,
+    max_eval_steps=LEARNING_DATA_POINTS,
 )
 
 # Collect data for offline inference - fewer eval steps, since we are interested
@@ -358,19 +368,28 @@ probe_triggered_data_collection_for_learning["monty_config"]["monty_args"] = Mon
 # NOTE that the operator should aim for a rapid exploration of the object, e.g.
 # frequently moving from one side of an object to the other, and making sure to include
 # features that would distinguish different objects.
+INFERENCE_DATA_POINTS = 50
 probe_triggered_data_collection_for_inference = deepcopy(
     base_probe_triggered_experiment
 )
 probe_triggered_data_collection_for_inference["monty_config"]["monty_args"] = MontyArgs(
-    min_eval_steps=50, num_exploratory_steps=num_pretrain_steps
+    min_eval_steps=INFERENCE_DATA_POINTS,
+    max_total_steps=INFERENCE_DATA_POINTS + 1,
+    num_exploratory_steps=num_pretrain_steps,
 )
+probe_triggered_data_collection_for_inference["experiment_args"] = EvalExperimentArgs(
+    model_name_or_path=model_path_tbp_robot_lab,
+    n_eval_epochs=1,
+    max_eval_steps=INFERENCE_DATA_POINTS,
+)
+
 
 
 CONFIGS = {
     "json_dataset_ultrasound_infer_sim2real_potted_meat_can": json_dataset_ultrasound_infer_sim2real_potted_meat_can,
     "json_dataset_ultrasound_infer_sim2real_potted_meat_can_old": json_dataset_ultrasound_infer_sim2real_potted_meat_can_old,
-    "json_dataset_ultrasound_learning_potted_meat_can": json_dataset_ultrasound_learning_potted_meat_can,
-    "json_dataset_ultrasound_learning_potted_meat_can_old": json_dataset_ultrasound_learning_potted_meat_can_old,
+    "json_dataset_ultrasound_learning": json_dataset_ultrasound_learning,
+    "json_dataset_ultrasound_learning_inference_data": json_dataset_ultrasound_learning_inference_data,
     "probe_triggered_data_collection_for_learning": probe_triggered_data_collection_for_learning,
-    "probe_triggered_data_collection_experiment_for_inference": probe_triggered_data_collection_for_inference,
+    "probe_triggered_data_collection_for_inference": probe_triggered_data_collection_for_inference,
 }

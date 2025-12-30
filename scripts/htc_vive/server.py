@@ -184,6 +184,8 @@ class PoseHTTPRequestHandler(BaseHTTPRequestHandler):
                         return
                 else:
                     # If no epoch provided, return the most recent pose
+                    # Note this is expected, for example, when no image was captured,
+                    # and thus this will simply return the most recent pose
                     pose_data = pose_history[-1] if pose_history else None
                     print(f"No epoch provided, returning the most recent pose")
 

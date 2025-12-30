@@ -9,7 +9,7 @@ then stream this via a server to the Mac that is running a Monty experiment.
 
 - Windows 10+ PC with the latest version of Steam and SteamVR installed
 - `openvr`
-- One (ideally two) SteamVR Base Stations 2.0 ("Lighthouses")
+- One (ideally three) SteamVR Base Stations 2.0 ("Lighthouses")
 - A Vive Tracker 3.0, and its associated USB dongle.
 
 ## Steps

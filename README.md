@@ -113,7 +113,7 @@ Ensure the tracker is attached to the probe, and matches the following orientati
 <img src="./custom_classes/figures/tracker_orientation.png" width="200"/>
 
 
-You should also position the strap so that the center of the butterfly logo is approximately in the center of the gap in the strap, along the long axis of the probe. This will correspond to the center of the tracker puck relative to the probe tip being: ~8.4cm in the long axis and ~2.9cm in the short axis of the probe. If you position the tracker differently, you will need to measure the offset between the tracker and probe tip and adjust the ultrasound sensor relative to the agent position in the `get_state` function of the `ProbeTriggeredUltrasoundEnvironment` class accordingly.
+You should also position the C-clamp so that the center of the tracker puck relative to the probe tip is: ~10.5cm in the long axis and ~2.8cm in the short axis of the probe. If you position the tracker differently, you will need to measure the offset between the tracker and probe tip and adjust the ultrasound sensor relative to the agent position in the `get_state` function of the `ProbeTriggeredUltrasoundEnvironment` class accordingly.
 
 
 - Start the custom Butterfly app on the iPad
@@ -126,7 +126,7 @@ You should also position the strap so that the center of the butterfly logo is a
 
 You should see this change reflected in the visualization service. Note this visualization is only for the operator's benefit, and to enable interpreting "goal-states" sent by Monty; it does not affect the measured locations or displacements within Monty as the probe moves.
 
-- Run the Monty experiment `python run.py -e probe_triggered_experiment`
+- Run the Monty experiment `python run.py -e probe_triggered_data_collection_for_learning` (or `_for_inference`, depending on how many data samples you want to collect, and what "policy" the human operator is planning on using - see `ultrasound_experiments.py` for details)
 - In the iPad app, click `Start Imaging`
 - Infer by moving the probe and capturing more images!
 
@@ -138,6 +138,9 @@ To continue inference with a subsequent object
 - Stop the Monty experiment (if it hasn't terminated on it's own already) + start it again with the above command
 - Press the "Reset step counter" button in the iPad app
 - Click two captures → Infer!
+
+When collecting a dataset (either for offline model learning or inference purposes):
+- After each experiment, make sure you move the stored images to an appropriate directory (e.g. based on the name of the object just scanned). 
 
 
 

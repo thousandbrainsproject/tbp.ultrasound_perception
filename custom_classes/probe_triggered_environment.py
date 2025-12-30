@@ -91,7 +91,7 @@ class ProbeTriggeredUltrasoundEnvironment(UltrasoundEnvironment):
                 "sensors": {
                     "ultrasound": {
                         "rotation": qt.quaternion(1, 0, 0, 0),  # Identity quaternion
-                        "position": np.array([0, 0.028, 0.114]),
+                        "position": np.array([0, 0.028, 0.105]),
                     },
                 },
                 "rotation": agent_rotation,
