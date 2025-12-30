@@ -174,6 +174,10 @@ json_dataset_ultrasound_infer_sim2real["monty_config"]["monty_args"] = MontyArgs
     min_eval_steps=199,  # Ensure all points are used for inference
     num_exploratory_steps=num_pretrain_steps,
 )
+json_dataset_ultrasound_infer_sim2real["dataset_args"]["env_init_func"] = (
+    JSONDatasetUltrasoundEnvironment
+)
+
 
 # ===== LEARNING ON ULTRASOUND DATA CONFIGS =====
 

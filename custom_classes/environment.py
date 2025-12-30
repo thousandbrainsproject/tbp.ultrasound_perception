@@ -46,6 +46,9 @@ class UltrasoundEnvironment(EmbodiedEnvironment):
         self.full_image = None  # Store the full image for plotting
 
         self.scene_names = [a for a in os.listdir(self.data_path) if a[0] != "."]
+
+        print(f"Scene names: {self.scene_names}")
+
         self.current_scene = 0
         self.step_count = 0
 
@@ -215,7 +218,12 @@ class JSONDatasetUltrasoundEnvironment(UltrasoundEnvironment):
         """Load the next ultrasound image from the dataset."""
         try:
             with open(
-                os.path.join(self.data_path, f"{self.step_count}.json"), "r"
+                os.path.join(
+                    self.data_path,
+                    f"{self.scene_names[self.current_scene]}",
+                    f"{self.step_count}.json",
+                ),
+                "r",
             ) as f:
                 data = json.load(f)
         except FileNotFoundError:
