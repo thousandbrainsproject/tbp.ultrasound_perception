@@ -155,7 +155,7 @@ base_ultrasound_experiment = {
         "env_init_func": UltrasoundEnvironment,
         "env_init_args": {
             "data_path": os.path.join(
-                os.environ["MONTY_DATA"], "ultrasound/ultrasound_test_set/"
+                os.environ["MONTY_DATA"], "ultrasound/ultrasound_robot_lab_test/"
             ),
         },
         "transform": None,
@@ -169,39 +169,11 @@ base_ultrasound_experiment = {
 # Experiment for testing offline on a dataset that was collected with the ultrasound
 # probe and saved to JSON files. Can be used to experiment without having the whole
 # ultrasound and tracking set up and for repeatable experiments.
-# Here weun evaluation with the potted meat can points collected using our updated
-# ultrasound pipeline, which has less noise in the observations.
-json_dataset_ultrasound_infer_sim2real_potted_meat_can = deepcopy(
-    base_ultrasound_experiment
+json_dataset_ultrasound_infer_sim2real = deepcopy(base_ultrasound_experiment)
+json_dataset_ultrasound_infer_sim2real["monty_config"]["monty_args"] = MontyArgs(
+    min_eval_steps=199,  # Ensure all points are used for inference
+    num_exploratory_steps=num_pretrain_steps,
 )
-json_dataset_ultrasound_infer_sim2real_potted_meat_can["dataset_args"][
-    "env_init_func"
-] = JSONDatasetUltrasoundEnvironment
-json_dataset_ultrasound_infer_sim2real_potted_meat_can["dataset_args"][
-    "env_init_args"
-] = {
-    "data_path": os.path.join(
-        os.environ["MONTY_DATA"], "ultrasound_test_set/potted_meat_can/"
-    ),
-}
-json_dataset_ultrasound_infer_sim2real_potted_meat_can["monty_config"]["monty_args"] = (
-    MontyArgs(
-        min_eval_steps=199,  # Ensure all points are used for inference
-        num_exploratory_steps=num_pretrain_steps,
-    )
-)
-
-# Run evaluation with the potted meat can points collected during the Crete hackathon
-# (200 noisy points)
-json_dataset_ultrasound_infer_sim2real_potted_meat_can_old = deepcopy(
-    json_dataset_ultrasound_infer_sim2real_potted_meat_can
-)
-json_dataset_ultrasound_infer_sim2real_potted_meat_can_old["dataset_args"][
-    "env_init_args"
-]["data_path"] = os.path.join(
-    os.environ["MONTY_DATA"], "ultrasound_test_set/potted_meat_can_old/"
-)
-
 
 # ===== LEARNING ON ULTRASOUND DATA CONFIGS =====
 
@@ -227,9 +199,7 @@ LM_config_for_learning = {
 OBJECT_FOR_LEARNING = "tuna_can"
 
 # Loads an offline .json dataset and trains models on it.
-json_dataset_ultrasound_learning = deepcopy(
-    json_dataset_ultrasound_infer_sim2real_potted_meat_can
-)
+json_dataset_ultrasound_learning = deepcopy(json_dataset_ultrasound_infer_sim2real)
 json_dataset_ultrasound_learning.update(
     {
         "experiment_args": EvalExperimentArgs(
@@ -244,7 +214,7 @@ json_dataset_ultrasound_learning.update(
             "env_init_args": {
                 "data_path": os.path.join(
                     os.environ["MONTY_DATA"],
-                    f"ultrasound_train_set/{OBJECT_FOR_LEARNING}/",
+                    f"ultrasound/ultrasound_robot_lab_train/{OBJECT_FOR_LEARNING}/",
                 ),
             },
         },
@@ -268,7 +238,8 @@ json_dataset_ultrasound_learning_inference_data = deepcopy(
 json_dataset_ultrasound_learning_inference_data["dataset_args"]["env_init_args"][
     "data_path"
 ] = os.path.join(
-    os.environ["MONTY_DATA"], f"ultrasound_test_set/{OBJECT_FOR_LEARNING}/"
+    os.environ["MONTY_DATA"],
+    f"ultrasound/ultrasound_robot_lab_train/{OBJECT_FOR_LEARNING}/",
 )
 
 # ===== PROBE-TRIGGERED EXPERIMENTS =====
@@ -386,8 +357,7 @@ probe_triggered_data_collection_for_inference["experiment_args"] = EvalExperimen
 
 
 CONFIGS = {
-    "json_dataset_ultrasound_infer_sim2real_potted_meat_can": json_dataset_ultrasound_infer_sim2real_potted_meat_can,
-    "json_dataset_ultrasound_infer_sim2real_potted_meat_can_old": json_dataset_ultrasound_infer_sim2real_potted_meat_can_old,
+    "json_dataset_ultrasound_infer_sim2real": json_dataset_ultrasound_infer_sim2real,
     "json_dataset_ultrasound_learning": json_dataset_ultrasound_learning,
     "json_dataset_ultrasound_learning_inference_data": json_dataset_ultrasound_learning_inference_data,
     "probe_triggered_data_collection_for_learning": probe_triggered_data_collection_for_learning,
