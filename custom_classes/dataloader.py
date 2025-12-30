@@ -23,19 +23,7 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
     def __init__(self, patch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patch_size = patch_size
-        # NOTE: We don't have ground truth rotation for the object so just use 0.
-        euler_rotation = np.zeros(3)
-        q = Rotation.from_euler("xyz", euler_rotation, degrees=True).as_quat()
-        quat_rotation = scipy_to_numpy_quat(q)
-        self.primary_target = {
-            "object": "new_object0",
-            "semantic_id": 0,
-            "rotation": quat_rotation,
-            "euler_rotation": euler_rotation,
-            "quat_rotation": q,
-            "position": np.zeros(3),
-            "scale": np.ones(3),
-        }
+        self.episode_counter = 0
 
     def __iter__(self):
         # Reset the environment before iterating
@@ -300,5 +288,36 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
 
         return best_patch, y_start
 
+    def change_object_by_idx(self, idx):
+        # NOTE: We don't have ground truth rotation for the object so just use 0.
+        euler_rotation = np.zeros(3)
+        q = Rotation.from_euler("xyz", euler_rotation, degrees=True).as_quat()
+        quat_rotation = scipy_to_numpy_quat(q)
+        self.primary_target = {
+            "object": self.dataset.env.scene_names[idx],
+            "semantic_id": 0,
+            "rotation": quat_rotation,
+            "euler_rotation": euler_rotation,
+            "quat_rotation": q,
+            "position": np.zeros(3),
+            "scale": np.ones(3),
+        }
+
+    def pre_epoch(self):
+        self.change_object_by_idx(idx=self.episode_counter)
+
     def post_episode(self):
+        """
+        Call the environment to update the "scene" (load the next folder with the
+        next scanned object), while updating the corresponding primary target
+        via the change_object_by_idx method.
+        """
+        print("In post episode, switching to next scene")
+        print(f"Current scene: {self.dataset.env.current_scene}")
+        print(f"Scene names: {self.dataset.env.scene_names}")
+        self.episode_counter += 1
         self.dataset.env.switch_to_next_scene()
+        self.change_object_by_idx(idx=self.episode_counter)
+
+        print(f"\n\nNew current scene: {self.dataset.env.current_scene}")
+        print("Corresponding primary target: ", self.primary_target)
