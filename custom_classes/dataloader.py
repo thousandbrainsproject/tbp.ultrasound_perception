@@ -294,7 +294,7 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
         q = Rotation.from_euler("xyz", euler_rotation, degrees=True).as_quat()
         quat_rotation = scipy_to_numpy_quat(q)
         self.primary_target = {
-            "object": self.dataset.env.scene_names[idx],
+            "object": self.dataset.env.object_names[idx],
             "semantic_id": 0,
             "rotation": quat_rotation,
             "euler_rotation": euler_rotation,
@@ -314,7 +314,7 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
         """
         print("In post episode, switching to next scene")
         print(f"Current scene: {self.dataset.env.current_scene}")
-        print(f"Scene names: {self.dataset.env.scene_names}")
+        print(f"Scene names: {self.dataset.env.object_names}")
         self.episode_counter += 1
         self.dataset.env.switch_to_next_scene()
         self.change_object_by_idx(idx=self.episode_counter)

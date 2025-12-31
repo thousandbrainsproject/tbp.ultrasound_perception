@@ -91,14 +91,15 @@ default_evidence_lm_config = {
     },
 }
 
-num_pretrain_steps = 200
+NUM_EVAL_SAMPLES = 50
+NUM_TRAINING_SAMPLES = 200
 
 base_ultrasound_experiment = {
     "experiment_class": UltrasoundExperiment,
     "experiment_args": EvalExperimentArgs(
         model_name_or_path=model_path_tbp_robot_lab,
         n_eval_epochs=1,
-        max_eval_steps=200,
+        max_eval_steps=NUM_EVAL_SAMPLES,
     ),
     "logging_config": EvalEvidenceLMLoggingConfig(
         wandb_group="benchmark_experiments",
@@ -119,7 +120,7 @@ base_ultrasound_experiment = {
         "monty_class": MontyForEvidenceGraphMatching,
         "monty_args": MontyArgs(
             min_eval_steps=20,
-            num_exploratory_steps=num_pretrain_steps,
+            num_exploratory_steps=NUM_TRAINING_SAMPLES,
         ),
         "learning_module_configs": {"learning_module_0": default_evidence_lm_config},
         "sensor_module_configs": {
@@ -168,11 +169,10 @@ base_ultrasound_experiment = {
 # Experiment for testing offline on a dataset that was collected with the ultrasound
 # probe and saved to JSON files. Can be used to experiment without having the whole
 # ultrasound and tracking set up and for repeatable experiments.
+
+# NOTE: ensure that max_eval_steps is set to the number of data points in the dataset.
+# Monty's current performance logging system will not operate correctly otherwise.
 json_dataset_ultrasound_infer_sim2real = deepcopy(base_ultrasound_experiment)
-json_dataset_ultrasound_infer_sim2real["monty_config"]["monty_args"] = MontyArgs(
-    min_eval_steps=199,  # Ensure all points are used for inference
-    num_exploratory_steps=num_pretrain_steps,
-)
 json_dataset_ultrasound_infer_sim2real["dataset_args"]["env_init_func"] = (
     JSONDatasetUltrasoundEnvironment
 )
@@ -209,8 +209,8 @@ json_dataset_ultrasound_learning.update(
             do_train=True,
             do_eval=False,
             n_train_epochs=1,
-            max_total_steps=num_pretrain_steps,
-            max_train_steps=num_pretrain_steps,
+            max_total_steps=NUM_TRAINING_SAMPLES,
+            max_train_steps=NUM_TRAINING_SAMPLES,
         ),
         "dataset_args": {
             "env_init_func": JSONDatasetUltrasoundEnvironment,
@@ -329,7 +329,7 @@ probe_triggered_data_collection_for_learning = deepcopy(base_probe_triggered_exp
 probe_triggered_data_collection_for_learning["monty_config"]["monty_args"] = MontyArgs(
     min_eval_steps=LEARNING_DATA_POINTS,
     max_total_steps=LEARNING_DATA_POINTS + 1,
-    num_exploratory_steps=num_pretrain_steps,
+    num_exploratory_steps=NUM_TRAINING_SAMPLES,
 )
 probe_triggered_data_collection_for_learning["experiment_args"] = EvalExperimentArgs(
     model_name_or_path=model_path_tbp_robot_lab,
@@ -349,7 +349,7 @@ probe_triggered_data_collection_for_inference = deepcopy(
 probe_triggered_data_collection_for_inference["monty_config"]["monty_args"] = MontyArgs(
     min_eval_steps=INFERENCE_DATA_POINTS,
     max_total_steps=INFERENCE_DATA_POINTS + 1,
-    num_exploratory_steps=num_pretrain_steps,
+    num_exploratory_steps=NUM_TRAINING_SAMPLES,
 )
 probe_triggered_data_collection_for_inference["experiment_args"] = EvalExperimentArgs(
     model_name_or_path=model_path_tbp_robot_lab,

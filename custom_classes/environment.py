@@ -45,9 +45,16 @@ class UltrasoundEnvironment(EmbodiedEnvironment):
         self.data_path = data_path
         self.full_image = None  # Store the full image for plotting
 
-        self.scene_names = [a for a in os.listdir(self.data_path) if a[0] != "."]
+        # Scene names used to load the next ultrasound image
+        self.scene_names = sorted(
+            [a for a in os.listdir(self.data_path) if a[0] != "."]
+        )
 
         print(f"Scene names: {self.scene_names}")
+
+        # Strip the number from the scene names such that 002_montys_brain becomes montys_brain
+        self.object_names = ["_".join(name.split("_")[1:]) for name in self.scene_names]
+        print(f"Object names: {self.object_names}")
 
         self.current_scene = 0
         self.step_count = 0
