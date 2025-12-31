@@ -66,6 +66,16 @@ class UltrasoundExperiment(MontyObjectRecognitionExperiment):
         super().setup_experiment(config)
         self.feature_logger = FeatureLogger()
 
+    def run_epoch(self):
+        """Run epoch -> Run one episode for each object."""
+        self.pre_epoch()
+
+        for object_name in self.dataloader.dataset.env.object_names:
+            print(f"\n\nRunning a simulation to model object: {object_name}")
+            self.run_episode()
+
+        self.post_epoch()
+
     def run_episode_steps(self):
         """Run episode steps with optional plotting."""
         for loader_step, observation in enumerate(self.dataloader):
