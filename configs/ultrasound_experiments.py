@@ -15,7 +15,7 @@ import numpy as np
 from tbp.monty.frameworks.actions.action_samplers import ConstantSampler
 from tbp.monty.frameworks.config_utils.config_args import (
     MontyArgs,
-    ParallelEvidenceLMLoggingConfig,
+    EvalEvidenceLMLoggingConfig,
 )
 from tbp.monty.frameworks.config_utils.make_dataset_configs import EvalExperimentArgs
 from tbp.monty.frameworks.config_utils.policy_setup_utils import (
@@ -100,12 +100,11 @@ base_ultrasound_experiment = {
         n_eval_epochs=1,
         max_eval_steps=200,
     ),
-    "logging_config": ParallelEvidenceLMLoggingConfig(
+    "logging_config": EvalEvidenceLMLoggingConfig(
         wandb_group="benchmark_experiments",
         # Comment in for quick debugging (turns off wandb and increases logging)
         wandb_handlers=[],
-        monty_handlers=[],
-        monty_log_level="SILENT",
+        monty_log_level="BASIC",
         python_log_level="DEBUG",
     ),
     "plotting_config": PlottingConfig(

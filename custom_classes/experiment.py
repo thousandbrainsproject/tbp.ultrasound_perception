@@ -49,6 +49,18 @@ class UltrasoundExperiment(MontyObjectRecognitionExperiment):
         self.plotting_config = config.get("plotting_config")
         self.feature_logger = FeatureLogger()
 
+    @property
+    def logger_args(self):
+        """Get current status of counters for the logger.
+
+        Returns:
+            dict with current expirent state.
+        """
+        args = super().logger_args
+        if self.dataloader is not None:
+            args.update(target=self.dataloader.primary_target)
+        return args
+
     def setup_experiment(self, config):
         """Set up the experiment and store plotting config."""
         super().setup_experiment(config)
