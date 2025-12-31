@@ -317,7 +317,11 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
         print(f"Scene names: {self.dataset.env.object_names}")
         self.episode_counter += 1
         self.dataset.env.switch_to_next_scene()
-        self.change_object_by_idx(idx=self.episode_counter)
-
         print(f"\n\nNew current scene: {self.dataset.env.current_scene}")
         print("Corresponding primary target: ", self.primary_target)
+        print(f"Episode counter: {self.episode_counter}")
+
+        if self.episode_counter < len(self.dataset.env.object_names):
+            self.change_object_by_idx(idx=self.episode_counter)
+        else:
+            print("Reached the end of the dataset. Stopping episode.")
