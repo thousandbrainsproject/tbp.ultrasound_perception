@@ -13,7 +13,7 @@ from tbp.monty.frameworks.run_env import setup_env
 
 setup_env()
 
-# # Load all experiment configurations from local project
+# Load all experiment configurations from local project
 from tbp.monty.frameworks.run import main  # noqa: E402
 
 from configs import CONFIGS  # noqa: E402

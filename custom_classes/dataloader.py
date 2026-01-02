@@ -312,16 +312,10 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
         next scanned object), while updating the corresponding primary target
         via the change_object_by_idx method.
         """
-        print("In post episode, switching to next scene")
-        print(f"Current scene: {self.dataset.env.current_scene}")
-        print(f"Scene names: {self.dataset.env.object_names}")
         self.episode_counter += 1
         self.dataset.env.switch_to_next_scene()
-        print(f"\n\nNew current scene: {self.dataset.env.current_scene}")
-        print("Corresponding primary target: ", self.primary_target)
-        print(f"Episode counter: {self.episode_counter}")
 
         if self.episode_counter < len(self.dataset.env.object_names):
             self.change_object_by_idx(idx=self.episode_counter)
         else:
-            print("Reached the end of the dataset. Stopping episode.")
+            print("Reached the end of the dataset. Stopping experiment.")

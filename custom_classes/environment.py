@@ -50,11 +50,8 @@ class UltrasoundEnvironment(EmbodiedEnvironment):
             [a for a in os.listdir(self.data_path) if a[0] != "."]
         )
 
-        print(f"Scene names: {self.scene_names}")
-
-        # Strip the number from the scene names such that 002_montys_brain becomes montys_brain
+        # Strip the number from the scene names such that 002_montys_brain becomes montys_brain, etc.
         self.object_names = ["_".join(name.split("_")[1:]) for name in self.scene_names]
-        print(f"Object names: {self.object_names}")
 
         self.current_scene = 0
         self.step_count = 0

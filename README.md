@@ -113,7 +113,7 @@ Ensure the tracker is attached to the probe, and matches the following orientati
 <img src="./custom_classes/figures/tracker_orientation.png" width="200"/>
 
 
-You should also position the C-clamp so that the center of the tracker puck relative to the probe tip is: ~10.5cm in the long axis and ~2.8cm in the short axis of the probe. If you position the tracker differently, you will need to measure the offset between the tracker and probe tip and adjust the ultrasound sensor relative to the agent position in the `get_state` function of the `ProbeTriggeredUltrasoundEnvironment` class accordingly.
+You should also position the tracker puck such that its center, relative to the probe tip, is: ~10.5cm in the long axis and ~2.8cm in the short axis of the probe. If you position the tracker differently, you will need to measure the offset between the tracker and probe tip and adjust the ultrasound sensor relative to the agent position in the `get_state` function of the `ProbeTriggeredUltrasoundEnvironment` class accordingly.
 
 
 - Start the custom Butterfly app on the iPad

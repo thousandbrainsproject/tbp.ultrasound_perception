@@ -65,7 +65,6 @@ class MontyUltrasoundSupervisedObjectPretrainingExperiment(
         self.pre_epoch()
 
         for object_name in self.dataloader.dataset.env.object_names:
-            print(f"\n\nRunning a simulation to model object: {object_name}")
             self.run_episode()
 
         self.post_epoch()
@@ -100,7 +99,6 @@ class UltrasoundExperiment(MontyObjectRecognitionExperiment):
         self.pre_epoch()
 
         for object_name in self.dataloader.dataset.env.object_names:
-            print(f"\n\nRunning a simulation to model object: {object_name}")
             self.run_episode()
 
         self.post_epoch()
