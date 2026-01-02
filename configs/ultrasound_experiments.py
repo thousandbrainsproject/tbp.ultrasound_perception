@@ -68,7 +68,6 @@ default_evidence_lm_config = {
         "max_match_distance": 0.01,  # =1cm
         "tolerances": {
             "patch": {
-                "principal_curvatures_log": np.ones(2),
                 "pose_vectors": np.ones(3) * math.radians(50),
             }
         },
@@ -291,13 +290,11 @@ LM_config_for_learning = {
     }
 }
 
-OBJECT_FOR_LEARNING = "tuna_can"
-
 # Loads an offline .json dataset and trains models on it.
-json_dataset_ultrasound_learning = deepcopy(
+json_dataset_ultrasound_learning_dense_samples = deepcopy(
     json_dataset_ultrasound_infer_sim2real_sparse_samples
 )
-json_dataset_ultrasound_learning.update(
+json_dataset_ultrasound_learning_dense_samples.update(
     {
         "experiment_args": EvalExperimentArgs(
             do_train=True,
@@ -311,7 +308,7 @@ json_dataset_ultrasound_learning.update(
             "env_init_args": {
                 "data_path": os.path.join(
                     os.environ["MONTY_DATA"],
-                    f"ultrasound/ultrasound_robot_lab_train/{OBJECT_FOR_LEARNING}/",
+                    f"ultrasound/ultrasound_robot_lab_train/",
                 ),
             },
         },
@@ -322,22 +319,60 @@ json_dataset_ultrasound_learning.update(
         ),
     }
 )
-json_dataset_ultrasound_learning["monty_config"]["learning_module_configs"] = (
-    LM_config_for_learning
+json_dataset_ultrasound_learning_dense_samples["monty_config"][
+    "learning_module_configs"
+] = LM_config_for_learning
+json_dataset_ultrasound_learning_dense_samples["monty_config"]["monty_class"] = (
+    MontyForGraphMatching
 )
-json_dataset_ultrasound_learning["monty_config"]["monty_class"] = MontyForGraphMatching
 
 # Learn with datapoints intended for inference; used to sanity check the quality of
-# the collected dataset
-json_dataset_ultrasound_learning_inference_data = deepcopy(
-    json_dataset_ultrasound_learning
+# the collected dataset (not expected to be sufficient samples for good performance)
+json_dataset_ultrasound_learning_sparse_samples = deepcopy(
+    json_dataset_ultrasound_learning_dense_samples
 )
-json_dataset_ultrasound_learning_inference_data["dataset_args"]["env_init_args"][
+json_dataset_ultrasound_learning_sparse_samples["dataset_args"]["env_init_args"][
     "data_path"
 ] = os.path.join(
     os.environ["MONTY_DATA"],
-    f"ultrasound/ultrasound_robot_lab_train/{OBJECT_FOR_LEARNING}/",
+    f"ultrasound/ultrasound_robot_lab_test/",
 )
+
+# ===== REAL-TO-REAL INFERENCE CONFIGS =====
+
+monty_models_dir = os.getenv("MONTY_MODELS")
+
+ultrasound_pretrain_dir = os.path.expanduser(
+    os.path.join(monty_models_dir, "robotlab_ultrasound_v1")
+)
+
+json_dense_learning_dir = os.path.join(
+    ultrasound_pretrain_dir,
+    "json_dataset_ultrasound_learning_dense_samples/pretrained/",
+)
+
+json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference = deepcopy(
+    json_dataset_ultrasound_infer_sim2real_sparse_samples
+)
+json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference[
+    "experiment_args"
+] = EvalExperimentArgs(
+    model_name_or_path=json_dense_learning_dir,
+    n_eval_epochs=1,
+    max_eval_steps=NUM_EVAL_SAMPLES,
+)
+
+json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference = deepcopy(
+    json_dataset_ultrasound_infer_sim2real_dense_samples
+)
+json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference[
+    "experiment_args"
+] = EvalExperimentArgs(
+    model_name_or_path=json_dense_learning_dir,
+    n_eval_epochs=1,
+    max_eval_steps=NUM_TRAINING_SAMPLES,
+)
+
 
 # ===== PROBE-TRIGGERED EXPERIMENTS =====
 
@@ -456,8 +491,10 @@ probe_triggered_data_collection_for_inference["experiment_args"] = EvalExperimen
 CONFIGS = {
     "json_dataset_ultrasound_infer_sim2real_sparse_samples": json_dataset_ultrasound_infer_sim2real_sparse_samples,
     "json_dataset_ultrasound_infer_sim2real_dense_samples": json_dataset_ultrasound_infer_sim2real_dense_samples,
-    "json_dataset_ultrasound_learning": json_dataset_ultrasound_learning,
-    "json_dataset_ultrasound_learning_inference_data": json_dataset_ultrasound_learning_inference_data,
+    "json_dataset_ultrasound_learning_dense_samples": json_dataset_ultrasound_learning_dense_samples,
+    "json_dataset_ultrasound_learning_sparse_samples": json_dataset_ultrasound_learning_sparse_samples,
+    "json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference": json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference,
+    "json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference": json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference,
     "probe_triggered_data_collection_for_learning": probe_triggered_data_collection_for_learning,
     "probe_triggered_data_collection_for_inference": probe_triggered_data_collection_for_inference,
 }
