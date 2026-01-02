@@ -5,7 +5,10 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
 import numpy as np
-from tbp.monty.frameworks.experiments import MontyObjectRecognitionExperiment
+from tbp.monty.frameworks.experiments import (
+    MontyObjectRecognitionExperiment,
+    MontySupervisedObjectPretrainingExperiment,
+)
 
 from .plotting import plot_combined_figure
 
@@ -40,6 +43,32 @@ class FeatureLogger:
             "mean_depth": self.mean_depth,
         }
 
+class MontyUltrasoundSupervisedObjectPretrainingExperiment(
+    MontySupervisedObjectPretrainingExperiment
+):
+    """Supervised learning experiment for ultrasound data."""
+
+    @property
+    def logger_args(self):
+        """Get current status of counters for the logger.
+
+        Returns:
+            dict with current expirent state.
+        """
+        args = super().logger_args
+        if self.dataloader is not None:
+            args.update(target=self.dataloader.primary_target)
+        return args
+
+    def run_epoch(self):
+        """Run epoch -> Run one episode for each object."""
+        self.pre_epoch()
+
+        for object_name in self.dataloader.dataset.env.object_names:
+            print(f"\n\nRunning a simulation to model object: {object_name}")
+            self.run_episode()
+
+        self.post_epoch()
 
 class UltrasoundExperiment(MontyObjectRecognitionExperiment):
     """Custom experiment class that adds plotting functionality."""

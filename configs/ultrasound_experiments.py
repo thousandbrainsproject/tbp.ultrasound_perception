@@ -16,6 +16,7 @@ from tbp.monty.frameworks.actions.action_samplers import ConstantSampler
 from tbp.monty.frameworks.config_utils.config_args import (
     MontyArgs,
     EvalEvidenceLMLoggingConfig,
+    PretrainLoggingConfig,
 )
 from tbp.monty.frameworks.config_utils.make_dataset_configs import EvalExperimentArgs
 from tbp.monty.frameworks.config_utils.policy_setup_utils import (
@@ -41,7 +42,10 @@ from custom_classes.environment import (
     JSONDatasetUltrasoundEnvironment,
     UltrasoundEnvironment,
 )
-from custom_classes.experiment import UltrasoundExperiment
+from custom_classes.experiment import (
+    UltrasoundExperiment,
+    MontyUltrasoundSupervisedObjectPretrainingExperiment,
+)
 from custom_classes.monty_class import MontyForEvidenceGraphMatchingWithGoalStateServer
 from custom_classes.motor_policy import UltrasoundMotorPolicy
 from custom_classes.probe_triggered_environment import (
@@ -173,15 +177,15 @@ base_ultrasound_experiment = {
 # ultrasound and tracking set up and for repeatable experiments.
 
 # Experiment with a sparse sampling of the objects (50 datapoints each)
-json_dataset_ultrasound_infer_sim2real_sparse_samples = deepcopy(
+json_dataset_ultrasound_infer_sim2real__sparse_inference = deepcopy(
     base_ultrasound_experiment
 )
-json_dataset_ultrasound_infer_sim2real_sparse_samples["dataset_args"][
+json_dataset_ultrasound_infer_sim2real__sparse_inference["dataset_args"][
     "env_init_func"
 ] = JSONDatasetUltrasoundEnvironment
 
 # Experiment with a denser sampling of the objects (200 datapoints each)
-json_dataset_ultrasound_infer_sim2real_dense_samples = {
+json_dataset_ultrasound_infer_sim2real__dense_inference = {
     "experiment_class": UltrasoundExperiment,
     "experiment_args": EvalExperimentArgs(
         model_name_or_path=model_path_tbp_robot_lab,
@@ -206,7 +210,8 @@ json_dataset_ultrasound_infer_sim2real_dense_samples = {
     "monty_config": {
         "monty_class": MontyForEvidenceGraphMatching,
         "monty_args": MontyArgs(
-            min_eval_steps=199,  # Make sure we use most of the datapoints
+            min_eval_steps=NUM_TRAINING_SAMPLES
+            - 1,  # Make sure we use most of the datapoints
             num_exploratory_steps=NUM_TRAINING_SAMPLES,
         ),
         "learning_module_configs": {"learning_module_0": default_evidence_lm_config},
@@ -271,6 +276,12 @@ json_dataset_ultrasound_infer_sim2real_dense_samples = {
 
 # ===== LEARNING ON ULTRASOUND DATA CONFIGS =====
 
+monty_models_dir = os.getenv("MONTY_MODELS")
+
+ultrasound_pretrain_dir = os.path.expanduser(
+    os.path.join(monty_models_dir, "robotlab_ultrasound_v1")
+)
+
 # For learning we use the DisplacementGraphLM.
 LM_config_for_learning = {
     "learning_module_0": {
@@ -291,17 +302,21 @@ LM_config_for_learning = {
 }
 
 # Loads an offline .json dataset and trains models on it.
-json_dataset_ultrasound_learning_dense_samples = deepcopy(
-    json_dataset_ultrasound_infer_sim2real_sparse_samples
+json_dataset_ultrasound_dense_learning = deepcopy(
+    json_dataset_ultrasound_infer_sim2real__sparse_inference
 )
-json_dataset_ultrasound_learning_dense_samples.update(
+json_dataset_ultrasound_dense_learning.update(
     {
+        "experiment_class": MontyUltrasoundSupervisedObjectPretrainingExperiment,
         "experiment_args": EvalExperimentArgs(
             do_train=True,
             do_eval=False,
             n_train_epochs=1,
             max_total_steps=NUM_TRAINING_SAMPLES,
             max_train_steps=NUM_TRAINING_SAMPLES,
+        ),
+        "logging_config": PretrainLoggingConfig(
+            output_dir=ultrasound_pretrain_dir,
         ),
         "dataset_args": {
             "env_init_func": JSONDatasetUltrasoundEnvironment,
@@ -319,19 +334,19 @@ json_dataset_ultrasound_learning_dense_samples.update(
         ),
     }
 )
-json_dataset_ultrasound_learning_dense_samples["monty_config"][
-    "learning_module_configs"
-] = LM_config_for_learning
-json_dataset_ultrasound_learning_dense_samples["monty_config"]["monty_class"] = (
+json_dataset_ultrasound_dense_learning["monty_config"]["learning_module_configs"] = (
+    LM_config_for_learning
+)
+json_dataset_ultrasound_dense_learning["monty_config"]["monty_class"] = (
     MontyForGraphMatching
 )
 
 # Learn with datapoints intended for inference; used to sanity check the quality of
 # the collected dataset (not expected to be sufficient samples for good performance)
-json_dataset_ultrasound_learning_sparse_samples = deepcopy(
-    json_dataset_ultrasound_learning_dense_samples
+json_dataset_ultrasound_sparse_learning = deepcopy(
+    json_dataset_ultrasound_dense_learning
 )
-json_dataset_ultrasound_learning_sparse_samples["dataset_args"]["env_init_args"][
+json_dataset_ultrasound_sparse_learning["dataset_args"]["env_init_args"][
     "data_path"
 ] = os.path.join(
     os.environ["MONTY_DATA"],
@@ -340,19 +355,13 @@ json_dataset_ultrasound_learning_sparse_samples["dataset_args"]["env_init_args"]
 
 # ===== REAL-TO-REAL INFERENCE CONFIGS =====
 
-monty_models_dir = os.getenv("MONTY_MODELS")
-
-ultrasound_pretrain_dir = os.path.expanduser(
-    os.path.join(monty_models_dir, "robotlab_ultrasound_v1")
-)
-
 json_dense_learning_dir = os.path.join(
     ultrasound_pretrain_dir,
-    "json_dataset_ultrasound_learning_dense_samples/pretrained/",
+    "json_dataset_ultrasound_dense_learning/pretrained/",
 )
 
 json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference = deepcopy(
-    json_dataset_ultrasound_infer_sim2real_sparse_samples
+    json_dataset_ultrasound_infer_sim2real__sparse_inference
 )
 json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference[
     "experiment_args"
@@ -362,8 +371,10 @@ json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference[
     max_eval_steps=NUM_EVAL_SAMPLES,
 )
 
+# Inference with the same data points used for learning - we expect 100% accuracy,
+# i.e. this is just a sanity check.
 json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference = deepcopy(
-    json_dataset_ultrasound_infer_sim2real_dense_samples
+    json_dataset_ultrasound_infer_sim2real__dense_inference
 )
 json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference[
     "experiment_args"
@@ -489,10 +500,10 @@ probe_triggered_data_collection_for_inference["experiment_args"] = EvalExperimen
 
 
 CONFIGS = {
-    "json_dataset_ultrasound_infer_sim2real_sparse_samples": json_dataset_ultrasound_infer_sim2real_sparse_samples,
-    "json_dataset_ultrasound_infer_sim2real_dense_samples": json_dataset_ultrasound_infer_sim2real_dense_samples,
-    "json_dataset_ultrasound_learning_dense_samples": json_dataset_ultrasound_learning_dense_samples,
-    "json_dataset_ultrasound_learning_sparse_samples": json_dataset_ultrasound_learning_sparse_samples,
+    "json_dataset_ultrasound_infer_sim2real__sparse_inference": json_dataset_ultrasound_infer_sim2real__sparse_inference,
+    "json_dataset_ultrasound_infer_sim2real__dense_inference": json_dataset_ultrasound_infer_sim2real__dense_inference,
+    "json_dataset_ultrasound_dense_learning": json_dataset_ultrasound_dense_learning,
+    "json_dataset_ultrasound_sparse_learning": json_dataset_ultrasound_sparse_learning,
     "json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference": json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference,
     "json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference": json_dataset_ultrasound_infer_real2real_dense_learning__dense_inference,
     "probe_triggered_data_collection_for_learning": probe_triggered_data_collection_for_learning,
