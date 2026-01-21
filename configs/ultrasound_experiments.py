@@ -171,7 +171,6 @@ base_ultrasound_experiment = {
 
 
 # ===== SIM-TO-REAL INFERENCE CONFIGS =====
-
 # Experiment for testing offline on a dataset that was collected with the ultrasound
 # probe and saved to JSON files. Can be used to experiment without having the whole
 # ultrasound and tracking set up and for repeatable experiments.
@@ -185,76 +184,30 @@ json_dataset_ultrasound_infer_sim2real__sparse_inference["dataset_args"][
 ] = JSONDatasetUltrasoundEnvironment
 
 # Experiment with a denser sampling of the objects (200 datapoints each)
-json_dataset_ultrasound_infer_sim2real__dense_inference = {
-    "experiment_class": UltrasoundExperiment,
-    "experiment_args": EvalExperimentArgs(
+json_dataset_ultrasound_infer_sim2real__dense_inference = deepcopy(
+    base_ultrasound_experiment
+)
+json_dataset_ultrasound_infer_sim2real__dense_inference.update(
+    experiment_args=EvalExperimentArgs(
         model_name_or_path=model_path_tbp_robot_lab,
         n_eval_epochs=1,
-        max_eval_steps=NUM_TRAINING_SAMPLES,
+        max_eval_steps=NUM_EVAL_SAMPLES,
     ),
-    "logging_config": EvalEvidenceLMLoggingConfig(
-        wandb_group="benchmark_experiments",
-        # Comment in for quick debugging (turns off wandb and increases logging)
-        wandb_handlers=[],
-        monty_log_level="BASIC",
-        python_log_level="DEBUG",
-    ),
-    "plotting_config": PlottingConfig(
-        enabled=False,
-        save_path=os.path.join(os.environ["MONTY_DATA"], "ultrasound_test_set/plots"),
-        plot_frequency=1,
-        plot_patch_features=True,
-        show_hypothesis_space=True,
-        display_mlh_focus_plot=True,
-    ),
-    "monty_config": {
-        "monty_class": MontyForEvidenceGraphMatching,
-        "monty_args": MontyArgs(
-            min_eval_steps=NUM_TRAINING_SAMPLES
-            - 1,  # Make sure we use most of the datapoints
-            num_exploratory_steps=NUM_TRAINING_SAMPLES,
-        ),
-        "learning_module_configs": {"learning_module_0": default_evidence_lm_config},
-        "sensor_module_configs": {
-            "sensor_module_0": {
-                "sensor_module_class": UltrasoundSM,
-                "sensor_module_args": {
-                    "sensor_module_id": "patch",
-                },
-            },
-        },
-        "motor_system_config": {
-            "motor_system_class": MotorSystem,
-            "motor_system_args": {
-                "policy_class": UltrasoundMotorPolicy,
-                "policy_args": make_informed_policy_config(
-                    action_space_type="distant_agent_no_translation",
-                    action_sampler_class=ConstantSampler,
-                    rotation_degrees=1.0,
-                    use_goal_state_driven_actions=False,
-                ),
-            },
-        },
-        "sm_to_agent_dict": {
-            "patch": "agent_id_0",
-        },
-        "sm_to_lm_matrix": [[0]],
-        "lm_to_lm_matrix": None,
-        "lm_to_lm_vote_matrix": None,
-    },
-    "dataset_class": EnvironmentDataset,
-    "dataset_args": {
-        "env_init_func": JSONDatasetUltrasoundEnvironment,
-        "env_init_args": {
-            "data_path": os.path.join(
-                os.environ["MONTY_DATA"], "ultrasound/ultrasound_robot_lab_train/"
-            ),
-        },
-        "transform": None,
-    },
-    "eval_dataloader_class": UltrasoundDataLoader,
-    "eval_dataloader_args": {"patch_size": 256},
-}
+)
+json_dataset_ultrasound_infer_sim2real__dense_inference["monty_config"][
+    "monty_args"
+] = MontyArgs(
+    min_eval_steps=NUM_TRAINING_SAMPLES - 1,
+    num_exploratory_steps=NUM_TRAINING_SAMPLES,
+)
+json_dataset_ultrasound_infer_sim2real__dense_inference["dataset_args"][
+    "env_init_func"
+] = JSONDatasetUltrasoundEnvironment
+json_dataset_ultrasound_infer_sim2real__dense_inference["dataset_args"][
+    "env_init_args"
+]["data_path"] = os.path.join(
+    os.environ["MONTY_DATA"], "ultrasound/ultrasound_robot_lab_train/"
+)
 
 
 # deepcopy(
