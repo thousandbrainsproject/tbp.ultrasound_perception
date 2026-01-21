@@ -160,7 +160,7 @@ base_ultrasound_experiment = {
         "env_init_func": UltrasoundEnvironment,
         "env_init_args": {
             "data_path": os.path.join(
-                os.environ["MONTY_DATA"], "ultrasound/ultrasound_robot_lab_test/"
+                os.environ["MONTY_DATA"], "ultrasound_robot_lab_sparse/"
             ),
         },
         "transform": None,
@@ -205,27 +205,7 @@ json_dataset_ultrasound_infer_sim2real__dense_inference["dataset_args"][
 ] = JSONDatasetUltrasoundEnvironment
 json_dataset_ultrasound_infer_sim2real__dense_inference["dataset_args"][
     "env_init_args"
-]["data_path"] = os.path.join(
-    os.environ["MONTY_DATA"], "ultrasound/ultrasound_robot_lab_train/"
-)
-
-
-# deepcopy(
-#     base_ultrasound_experiment
-# )
-# json_dataset_ultrasound_infer_sim2real_dense_samples["experiment_args"] = (
-#     EvalExperimentArgs(
-#         model_name_or_path=model_path_tbp_robot_lab,
-#         n_eval_epochs=1,
-#         max_eval_steps=NUM_TRAINING_SAMPLES,
-#     ),
-# )
-# json_dataset_ultrasound_infer_sim2real_dense_samples["dataset_args"][
-#     "env_init_func"
-# ] = JSONDatasetUltrasoundEnvironment
-# json_dataset_ultrasound_infer_sim2real_dense_samples["dataset_args"]["env_init_args"][
-#     "data_path"
-# ] = os.path.join(os.environ["MONTY_DATA"], "ultrasound/ultrasound_robot_lab_train/")
+]["data_path"] = os.path.join(os.environ["MONTY_DATA"], "ultrasound_robot_lab_dense/")
 
 # ===== LEARNING ON ULTRASOUND DATA CONFIGS =====
 
@@ -276,7 +256,7 @@ json_dataset_ultrasound_dense_learning.update(
             "env_init_args": {
                 "data_path": os.path.join(
                     os.environ["MONTY_DATA"],
-                    f"ultrasound/ultrasound_robot_lab_train/",
+                    f"ultrasound_robot_lab_dense/",
                 ),
             },
         },
@@ -303,7 +283,7 @@ json_dataset_ultrasound_sparse_learning["dataset_args"]["env_init_args"][
     "data_path"
 ] = os.path.join(
     os.environ["MONTY_DATA"],
-    f"ultrasound/ultrasound_robot_lab_test/",
+    f"ultrasound_robot_lab_sparse/",
 )
 
 # ===== REAL-TO-REAL INFERENCE CONFIGS =====
