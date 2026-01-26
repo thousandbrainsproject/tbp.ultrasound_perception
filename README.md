@@ -141,6 +141,8 @@ To run inference on the sparse ultrasound dataset with a Monty pretrained on the
 python run.py -e json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference
 ```
 
+Note that the existing experiment configs make use of default values provided in the `tbp_monty_pre_hydra_configs` directory (where Hydra refers to the recent shift in `tbp.monty` to [Hydra](https://hydra.cc/docs/intro/)). Cleaning up configs and updating to use Hydra throughout, without these defaults, is one of the many existing open Issues for this repository (see [Learn More & Contribute](#learn-more--contribute)).
+
 ## Analysis
 
 After you run an experiment, you can see the results by going to `~/tbp/results/monty/projects/evidence_eval_runs/`, and looking for the folder with the same name as your experiment (e.g., `json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference`). In this folder, `eval_stats.csv` will provide a breakdown of the results.
