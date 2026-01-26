@@ -89,9 +89,7 @@ Note that if you inspect the downloaded folder, you will notice that its content
 
 You can quickly train the Monty models from scratch by running the commands provided below under [Experiments for Training and Evaluation](#experiments-for-training-and-evaluation). Alternatively, you can download pre-trained models at the links below. 
 
-[Download Monty trained on the TBP Robot Lab (simulated) dataset]. The folder should be placed in a `~/tbp/results/pretrained_models/pretrained_ycb_v10/` directory to match the existing configs.
-
-[Download Monty systems trained on the dense and sparse ultrasound datasets](https://tbp-pretrained-models-public-c9c24aef2e49b897.s3.us-east-2.amazonaws.com/tbp.ultrasound_perception/ultrasound_robot_lab_v1.zip). The folder should be placed in `~/tbp/results/pretrained_models/`
+[Download Monty systems trained on the dense and sparse ultrasound datasets, as well as the TBP Robot Lab (simulated) dataset](https://tbp-pretrained-models-public-c9c24aef2e49b897.s3.us-east-2.amazonaws.com/tbp.ultrasound_perception/ultrasound_robot_lab_v1.zip). The folder should be placed in `~/tbp/results/pretrained_models/`
 
 
 # Experiments for Training and Evaluation
