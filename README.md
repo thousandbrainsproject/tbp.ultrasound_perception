@@ -1,8 +1,8 @@
 # Ultrasound Perception with Monty
 
 This codebase is for exploring the application of [Monty](https://github.com/thousandbrainsproject/tbp.monty/) to ultrasound data. It consists of two functional components:
-1. Code required to collect a dataset of ultrasound images, together with tracking data for the associated ultrasound probe. This code is provided primarily for posterity purposes, as implementing the full data-collection pipeline is non-trivial.
-2. Code to train models on a downloadable ultrasound dataset that the Thousand Brains Project team have collected, and to evaluate these models on held-out data. This dataset consists of common household objects, including a coffee mug and a spam can (as well as less common household objects, like a rubber heart...). These objects were scanned with an ultrasound probe while the position of the probe was simultaneously tracked, providing paired sensorimotor data.
+1. Code to train Monty on a downloadable ultrasound dataset that the Thousand Brains Project team have collected, and to evaluate its performance on held-out data. This dataset consists of common household objects, including a coffee mug and a spam can (as well as less common household objects, like a rubber heart...). These objects were scanned with an ultrasound probe while the position of the probe was simultaneously tracked, providing paired sensorimotor data.
+2. Code required to collect such a dataset of ultrasound images, together with tracking data for the associated ultrasound probe. This code is provided primarily for posterity purposes, as implementing the full data-collection pipeline is non-trivial.
 
 [Monty is a sensorimotor system](https://arxiv.org/abs/2412.18354) with [a variety of exciting capabilities](https://arxiv.org/abs/2507.04494). Medical ultrasound is an inherently sensorimotor form of clinical imaging, and [automated ultrasound would make medical diagnostics more accessible around the world](https://www.gatesfoundation.org/ideas/science-innovation-technology/future-womens-health-technology/ai-ultrasounds). If you're interested in applying Monty to real-world data, or curious about long-term medical applications of Monty, then you're in the right place!
 
@@ -10,7 +10,9 @@ This codebase is for exploring the application of [Monty](https://github.com/tho
 
 *An example of a model learned by Monty from ultrasound data, as well as the underlying object ❤️*
 
-The majority of this code was produced during the TBP Robot Hackathon in May 2025, with further refinements since then. As such, it currently relies on an old version of Monty. There are many ways in which the codebase could be further improved (see ref link), and we are hoping this is something that others take part in!
+The majority of this code was produced during the TBP Robot Hackathon in May 2025, with further refinements since then. As such, it currently relies on an old version of Monty. There are many ways in which the codebase could be further improved (see [Learn More & Contribute](#learn-more--contribute)), and we are hoping this is something that others take part in!
+
+# Table of Contents
 
 - [Installation](#installation)
 - [Datasets & Pre-Trained Models](#datasets)
@@ -63,45 +65,46 @@ A number of datasets are used in the experiments within this repository. Once un
 
 ### TBP Robot Lab
 
-The ultrasound datasets below use the objects found in the [TBP Robot Lab dataset](https://github.com/thousandbrainsproject/monty_lab/tree/65d7411edda789e39bf535040dcb4fbeb1f753d8/tbp_robot_lab). This dataset consists of 10 every day objects that are relatively easy to purchase, and which can be submerged in fluid such as water (which is a requirement for ultrasound scanning). They were previously 3D scanned, either by ourselves during the [Monty Meets World hackathon](https://thousandbrainsproject.readme.io/docs/using-monty-for-robotics#example-1-monty-meets-world-ipad-app), or as part of the [YCB dataset](https://www.ycbbenchmarks.com/object-models/). They are thus available as 3D meshes + textures that can be freely explored by Monty in a simulated environment. To train a Monty model on simulated data in Habitat, and thereby assess sim-to-real/sim-to-ultrasound performance, you will need this dataset.
+The ultrasound datasets below use the objects found in the [TBP Robot Lab dataset](https://github.com/thousandbrainsproject/monty_lab/tree/65d7411edda789e39bf535040dcb4fbeb1f753d8/tbp_robot_lab). This dataset consists of 10 every day objects that are relatively easy to purchase, and which can be submerged in fluid such as water (which is a requirement for ultrasound scanning). They were previously 3D scanned, either by ourselves during the [Monty Meets World hackathon](https://thousandbrainsproject.readme.io/docs/using-monty-for-robotics#example-1-monty-meets-world-ipad-app), or as part of the original creation of the [YCB dataset](https://www.ycbbenchmarks.com/object-models/). They are thus available as 3D meshes + textures that can be freely explored by Monty in a simulated environment. To train a Monty model on simulated data in Habitat, and thereby assess sim-to-real (i.e., sim-to-ultrasound) performance, you will need this dataset.
 
-[Download the TBP Robot Lab from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/tbp_robot_lab.zip)
+[Download the TBP Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/tbp_robot_lab.zip)
 
 ### Ultrasound Robot Lab
 
-There are two ultrasound datasets, one with "dense" samples, and one with "sparse" samples. Both consist of ultrasound scans of the 10 Robot Lab objects, along with tracking data for the ultrasound probe that was used. The files contain a fixed sequence of observations, which will be experienced in the same order whenever an object in the dataset is loaded. Note that each object was only ever observed in a single rotation.
+There are two ultrasound datasets, one with "dense" samples, and one with "sparse" samples. Both consist of ultrasound scans of the 10 Robot Lab objects, along with tracking data for the ultrasound probe that was used. The files contain a fixed sequence of observations, which will be experienced in the same order whenever an object in the dataset is loaded. Note that each object was only ever observed in a single orientation.
 
-The dense dataset consists of 200 individual observations for each object. For all of the objects, a systematic policy was used by the human operator to densely cover as much of the object's surface as possible. This should generally be viewed as a "training" dataset, when training on ultrasound data.
+The dense dataset consists of 200 individual observations for each object. During scanning, a systematic policy was used by the human operator to densely cover as much of an object's surface as possible. This should generally be viewed as a "training" dataset when Monty is learning on ultrasound data.
 
-The sparse dataset consists of 50 individual observations for each object. For all of the objects, an "inference-focused" policy was used by the human operator, which involved moving relatively quickly from one part of an object to another distant part. For example, after exploring the handle of the coffee mug, the operator would move to the rim, and then to an area near the base of the mug. Due to this policy and the number of observations, the surface is not sampled nearly as densely. As such, this is best viewed as a "testing" dataset, either for sim-to-real or real-to-real evaluations.
+The sparse dataset consists of 50 individual observations for each object. During scanning, an "inference-focused" policy was used by the human operator, which involved moving relatively quickly from one part of an object to another distant part. For example, after exploring the handle of the coffee mug, the operator would move to the rim, and then to an area near the base of the mug. Due to this policy and the number of observations, the surface is not sampled nearly as densely. As such, this is best viewed as a "testing"/inference-time dataset, either for sim-to-real or real-to-real evaluations.
 
 <img src="./custom_classes/figures/SampleScanDenseVsSparse.png" width="600"/>
 
-*The models learned by Monty for the rubber heart when provided with either the dense or the sparse data samples.*
+*Example models learned by Monty for the rubber heart when provided with either the dense or the sparse data samples.*
 
-[Download the Dense Ultrasound Robot Lab from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_dense.zip)
+[Download the Dense Ultrasound Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_dense.zip)
 
-[Download Sparse Ultrasound Robot Lab from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_sparse.zip)
+[Download Sparse Ultrasound Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_sparse.zip)
 
-Note that if you inspect the downloaded folder, you will notice that its contents are very different from the TBP robot data, because the ultrasound dataset consists of `.json` files that store individual ultrasound images paired with position-tracking data. This is thus different from the 3D meshes which underly many other datasets currently used by Monty.
+Note that if you inspect the downloaded ultrasound folders, you will notice that their contents are very different from TBP Robot Lab, because the ultrasound datasets consist of `.json` files that store individual ultrasound images paired with position-tracking data. This is thus different from the 3D meshes which underly many other datasets currently used by Monty (including TBP Robot Lab). This is also why the sequence of observations for the ultrasound objects are fixed, unless you choose to implement a custom dataloader that samples them in an alternative order.
 
 ### Pre-trained models
 
-You can quickly train the Monty models from scratch by running the commands provided below under [Experiments for Training and Evaluation](#experiments-for-training-and-evaluation). Alternatively, you can download pre-trained models at the links below. 
+You can quickly train the Monty models from scratch by running the commands provided below under [Experiments for Training and Evaluation](#experiments-for-training-and-evaluation). Alternatively, you can download pre-trained models at the link below. 
 
-[Download Monty systems trained on the dense and sparse ultrasound datasets, as well as the TBP Robot Lab (simulated) dataset](https://tbp-pretrained-models-public-c9c24aef2e49b897.s3.us-east-2.amazonaws.com/tbp.ultrasound_perception/ultrasound_robot_lab_v1.zip). The folder should be placed in `~/tbp/results/pretrained_models/`
+[Download Monty systems trained on the dense and sparse ultrasound datasets, as well as the TBP Robot Lab (simulated) dataset](https://tbp-pretrained-models-public-c9c24aef2e49b897.s3.us-east-2.amazonaws.com/tbp.ultrasound_perception/ultrasound_robot_lab_v1.zip).
+
+The folder should be placed in `~/tbp/results/pretrained_models/` if you would like to use the existing configs as they are.
 
 
 # Experiments for Training and Evaluation
 
-Description here++
+Once you have the above datasets (and optionally, pre-trained models), you can run the experiments below. These can be used to replicate the existing benchmark results, which we hope to continue to improve upon.
 
 ## Benchmark Results
 
 Table here - TODO; see format for 
 
 Also commit the base CSV files
-- ?Worth running on AWS to make more reproducible 
 
 ## Running Experiments
 
@@ -115,37 +118,48 @@ python run.py -e <experiment_name>
 
 For example:
 
-To run training on an offline ultrasound dataset (.json files) run:
+To pretrain Monty on simulated versions of the TBP Robot Lab objects:
 ```bash
-python run.py -e json_dataset_ultrasound_learning
+python run.py -e surf_agent_1lm_tbp_robot_lab
 ```
 
-Make sure the `data_path` in `env_init_args` of the `json_dataset_ultrasound_learning` config points to your dataset.
-
-TODO: Add instructions for downloading dataset.
-
-To run inference on an offline ultrasound dataset (.json files) run:
+To pretrain Monty on the dense ultrasound dataset:
 ```bash
-python run.py -e json_dataset_ultrasound_experiment
+python run.py -e json_dataset_ultrasound_dense_learning
 ```
-(again, making sure the `data_path` points to your dataset)
+Make sure the `data_path` in `env_init_args` of the config points to your dataset.
+
+To run inference on the sparse ultrasound dataset with a Monty pretrained on the simulated 3D objects:
+
+```bash
+python run.py -e json_dataset_ultrasound_infer_sim2real__sparse_inference
+```
+
+To run inference on the sparse ultrasound dataset with a Monty pretrained on the dense ultrasound dataset:
+
+```bash
+python run.py -e json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference
+```
 
 ## Analysis
 
-Mention Jupyter notebook here
+After you run an experiment, you can see the results by going to `~/tbp/results/monty/projects/evidence_eval_runs/`, and looking for the folder with the same name as your experiment (e.g., `json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference`). In this folder, `eval_stats.csv` will provide a breakdown of the results.
 
+We have also provided a Jupyter notebook in this repository (`VisualizeModels.ipynb`), which you may find helpful in visualizing and comparing learned models.
 
+TODO move notebook and figure documentation to separate folders
 
 # Learn More & Contribute
 
 You can find more information on how we customized Monty for this usecase in the writeup [here](./custom_classes/How_Monty_is_Customized.md).
 
-We will be recording a video shortly with an overview of this repository and our results: TODO link this here.
+We will be recording a video shortly with an overview of this repository and our results: TODO to the video here.
 
-There are lots of exciting ways that this repository can be improved, including changes that will have a direct impact on Monty's performance. 
+You can see the [video presentation from the original hackathon here](https://img.youtube.com/vi/-zrq0oTJudo/sddefault.jpg)](https://youtu.be/-zrq0oTJudo).
 
-++
+There are lots of exciting ways that this repository can be improved, including changes that will have a direct impact on Monty's performance. These are all provided under the open Issues within this repository. If you have any questions, [get in touch with the TBP team on Discourse](https://thousandbrains.discourse.group/).
 
+Finally, you can read more on our [showcase page](https://thousandbrainsproject.readme.io/docs/project-showcase)
 
 # Live Experiments and Data Collection
 
@@ -155,8 +169,8 @@ Broadly speaking, the full pipeline requires:
 - A [Butterfly iQ3 probe](https://www.butterflynetwork.com/int/en-uk/iq3) and access to their SDK.
 - An iPad loaded with the custom Butterfly app contained within this repository; this iPad will connect to the ultrasound probe and collect ultrasound images, before sending these via a server to the computer running an instance of Monty.
 - A series of [Steam VR Base Stations 2.0](https://www.vive.com/uk/accessory/base-station2/), along with a Windows PC running SteamVR and the associated server script that we provide here.
-- A [Vive 3.0 Tracker](https://www.vive.com/uk/accessory/tracker3/), attached to the ultrasound probe. Together with the above base stations, these will provide the essential tracking of the probe position, which Monty needs to know how the sensor is moving through space.
-- Your real-world objects - the existing dataset is based on scannin common household objects, such as a mug or mustard bottle, which has been suspended in fluid. Future datasets might focus on more organic objects that better reflect the typical subjects of medical ultrasound.
+- A [Vive 3.0 Tracker](https://www.vive.com/uk/accessory/tracker3/), attached to the ultrasound probe. Together with the above base stations, this will enable the essential tracking of the probe position, which Monty needs in order to know how the sensor is moving through space.
+- Your real-world objects, and an appropriate container for scanning (i.e., an [ultrasound "phantom"](https://mediscientific.co.uk/product-category/anthropomorphic/ultrasound-phantoms/)), whether home-made or not; the existing dataset was based on scanning common household objects, such as a mug or mustard bottle, which were suspended in fluid inside a large plastic bag; this plastic bag was suspended from two camera tripods. Future datasets might focus on more organic objects and settings that better reflect the typical subjects of medical ultrasound.
 
 Below, we provide a breakdown of the series of steps you need to take to run live, online experiments. These steps will setup both the ability to capture ultrasound images via the iPad app, as well as to track the position of the probe.
 
