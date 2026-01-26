@@ -61,7 +61,7 @@ if LOAD_PRETRAINED_MODEL:
     # load pretrained model
     pretrain_path = os.path.expanduser("~/tbp/results/monty/pretrained_models/")
     pretrained_dict = (
-        pretrain_path + "pretrained_ycb_v10/surf_agent_1lm_tbp_robot_lab/pretrained/"
+        pretrain_path + "ultrasound_robot_lab_v1/surf_agent_1lm_tbp_robot_lab/pretrained/"
     )
 
     log_path = os.path.expanduser(

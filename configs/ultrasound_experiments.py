@@ -57,9 +57,20 @@ from .config_utils import import_config_from_monty
 
 # Ultrasound experiments can use the models trained in simulation when inferring objects
 # in the real world.
-pretrained_dir = import_config_from_monty("defaults.py", "pretrained_dir")
+
+monty_models_dir = os.getenv("MONTY_MODELS")
+
+if monty_models_dir is None:
+    monty_models_dir = os.path.expanduser("~/tbp/results/pretrained_models/")
+    print(
+        "MONTY_MODELS environment variable not set, using default directory: ",
+        monty_models_dir,
+    )
+
+ultrasound_pretrain_dir = os.path.join(monty_models_dir, "ultrasound_robot_lab_v1")
+
 model_path_tbp_robot_lab = os.path.join(
-    pretrained_dir,
+    ultrasound_pretrain_dir,
     "surf_agent_1lm_tbp_robot_lab/pretrained/",
 )
 
@@ -208,12 +219,6 @@ json_dataset_ultrasound_infer_sim2real__dense_inference["dataset_args"][
 ]["data_path"] = os.path.join(os.environ["MONTY_DATA"], "ultrasound_robot_lab_dense/")
 
 # ===== LEARNING ON ULTRASOUND DATA CONFIGS =====
-
-monty_models_dir = os.getenv("MONTY_MODELS")
-
-ultrasound_pretrain_dir = os.path.expanduser(
-    os.path.join(monty_models_dir, "robotlab_ultrasound_v1")
-)
 
 # For learning we use the DisplacementGraphLM.
 LM_config_for_learning = {
