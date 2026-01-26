@@ -11,7 +11,7 @@ To use Monty for Ultrasound, we had to customize several classes:
 - `UltrasoundMotorPolicy`: Combines the `InformedPolicy` with the `JumpToGoalStateMixin`. Generally actions are executed by the human experimenter but Monty is able to suggest goal states (locations to move to) to the experimenter.
 - `MontyUltrasoundSupervisedObjectPretrainingExperiment`, and `UltrasoundExperiment`: Experiment classes that support supervised learning and inference experiments with ultrasound data.
 
-![Custom classes shown with dashed boarders.](./figures/CustomClassesOverview.png#width=300px)
+![Custom classes shown with dashed boarders. The ](./figures/CustomClassesOverview.png#width=300px)
 
 Following is some more information on the inner workings of some of those components. 
 
