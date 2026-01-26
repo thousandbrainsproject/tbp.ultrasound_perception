@@ -68,8 +68,8 @@ tbp_robot_lab_dataset_args = SurfaceViewFinderMontyWorldMountHabitatDatasetArgs(
 tbp_robot_lab_dataset_args.env_init_args["data_path"] = os.path.join(
     os.environ["MONTY_DATA"], "tbp_robot_lab"
 )
-only_surf_agent_training_tbp_robot_lab = copy.deepcopy(only_surf_agent_training_10obj)
-only_surf_agent_training_tbp_robot_lab.update(
+surf_agent_1lm_tbp_robot_lab = copy.deepcopy(only_surf_agent_training_10obj)
+surf_agent_1lm_tbp_robot_lab.update(
     logging_config=PretrainLoggingConfig(
         output_dir=pretrained_dir,
         run_name="surf_agent_1lm_tbp_robot_lab",
@@ -167,7 +167,7 @@ randrot_noise_surf_sim_on_scan_tbp_robot_lab.update(
 )
 
 CONFIGS = {
-    "only_surf_agent_training_tbp_robot_lab": only_surf_agent_training_tbp_robot_lab,
+    "surf_agent_1lm_tbp_robot_lab": surf_agent_1lm_tbp_robot_lab,
     "randrot_noise_dist_sim_on_scan_tbp_robot_lab": randrot_noise_dist_sim_on_scan_tbp_robot_lab,
     "randrot_noise_surf_sim_on_scan_tbp_robot_lab": randrot_noise_surf_sim_on_scan_tbp_robot_lab,
 }
