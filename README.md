@@ -98,11 +98,24 @@ The folder should be placed in `~/tbp/results/pretrained_models/` if you would l
 
 # Experiments for Training and Evaluation
 
-Once you have the above datasets (and optionally, pre-trained models), you can run the experiments below. These can be used to replicate the existing benchmark results, which we hope to continue to improve upon.
+Below are the benchmark results - a key aim is to investigate ways that we can improve performance on these experiments.
 
 ## Benchmark Results
 
-TODO add results table here; also commit the base CSV files
+| Experiment                                    | Object Detection Accuracy | Rotation Error (rad) | Monty Steps | Episode Time |
+| --------------------------------------------- | ------------------------- | -------------------- | --------- | -------------- |
+| real2real_dense_learning__sparse_inference    | 80.0%                     | 1.00                 | 24.2      | 5.3s          |
+| sim2real__sparse_inference                    | 30.0%                     | 2.02                 | 40.8      | 10.4s         |
+| sim2real__dense_inference                     | 60.0%                     | 2.27                 | 200.0      | 48.9s         |
+
+**Notes:**
+- Values show the mean result for each experiment type, averaged across episodes.
+- `real` refers to ultrasound data from the real world. `sim` refers to training or inference in a simulated environment, using 3D scanned objects.
+- Object Detection Accuracy counts both "correct" and "correct_mlh" (correct most likely hypothesis) as successful detections
+- Monty terminates each episode when it is sufficiently confident, and has passed the minimum number of inference steps. In sparse experiments with 50 total possible observations, `min_eval_steps=20`, a typical value we set for Monty. For dense inference, `min_eval_steps=199` to force Monty to observe all possible observations. This enables us to estimate Monty's peformance when the number of data samples is effectively unconstrained.
+- Rotation error may not be a meaningful measure in existing experiments, in particular for sim2real. Investigating this is an outstanding Issue (TODO add link).
+
+TODO consider adding a sim2sim experiment as a baseline comparison
 
 ## Running Experiments
 
