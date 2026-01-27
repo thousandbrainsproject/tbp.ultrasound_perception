@@ -72,7 +72,7 @@ The ultrasound datasets below use the objects found in the [TBP Robot Lab datase
 
 ### Ultrasound Robot Lab
 
-There are two ultrasound datasets, one with "dense" samples, and one with "sparse" samples. Both consist of ultrasound scans of the 10 Robot Lab objects, along with tracking data for the ultrasound probe that was used. The files contain a fixed sequence of observations, which will be experienced in the same order whenever an object in the dataset is loaded. Note that each object was only ever observed in a single orientation.
+There are two ultrasound datasets, one with "dense" samples, and one with "sparse" samples. Both consist of ultrasound scans of the 10 Robot Lab objects, along with tracking data for the ultrasound probe that was used. The files contain a fixed sequence of observations, which will be experienced in the same order whenever an object in the dataset is loaded. Note that each object was only ever scanned in a single orientation.
 
 The dense dataset consists of 200 individual observations for each object. During scanning, a systematic policy was used by the human operator to densely cover as much of an object's surface as possible. This should generally be viewed as a "training" dataset when Monty is learning on ultrasound data.
 
@@ -98,7 +98,7 @@ The folder should be placed in `~/tbp/results/pretrained_models/` if you would l
 
 # Benchmark Results
 
-Below are the benchmark results - a key aim is to investigate ways that we can improve performance on these experiments.
+Below are results from the key experiments we are interested in - a primary aim of this repository is to investigate ways that we can improve performance on these experiments.
 
 | Experiment                                    | Object Detection Accuracy | Monty Steps | Episode Time |
 | --------------------------------------------- | ------------------------- | --------- | -------------- |
@@ -138,15 +138,14 @@ To pretrain Monty on the dense ultrasound dataset:
 ```bash
 python run.py -e json_dataset_ultrasound_dense_learning
 ```
-Make sure the `data_path` in `env_init_args` of the config points to your dataset.
 
-To run inference on the sparse ultrasound dataset with a Monty pretrained on the simulated 3D objects:
+To run inference on the sparse ultrasound dataset with Monty pretrained on the simulated 3D objects:
 
 ```bash
 python run.py -e json_dataset_ultrasound_infer_sim2real__sparse_inference
 ```
 
-To run inference on the sparse ultrasound dataset with a Monty pretrained on the dense ultrasound dataset:
+To run inference on the sparse ultrasound dataset with Monty pretrained on the dense ultrasound dataset:
 
 ```bash
 python run.py -e json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference
@@ -166,17 +165,17 @@ TODO move notebook and figure documentation to separate folders
 
 You can find more information on how we customized Monty for this use case in the writeup [here](./custom_classes/How_Monty_is_Customized.md).
 
-We will be recording a video shortly with an overview of this repository and our results: TODO to the video here.
+We will be recording a video shortly with an overview of this repository and our results: TODO link to the video here.
 
-You can see the [video presentation from the original hackathon here](https://img.youtube.com/vi/-zrq0oTJudo/sddefault.jpg)](https://youtu.be/-zrq0oTJudo).
+You can see the [video presentation from the original hackathon here](https://youtu.be/-zrq0oTJudo).
 
-There are lots of exciting ways that this repository can be improved, including changes that will have a direct impact on Monty's performance. These are all provided under the open Issues within this repository. If you have any questions, [get in touch with the TBP team on Discourse](https://thousandbrains.discourse.group/).
+There are lots of exciting ways that this repository can be improved, including changes that will have a direct impact on Monty's performance. These are all provided under the open Issues within this repository. If you have any questions, [please get in touch with the TBP team on Discourse](https://thousandbrains.discourse.group/).
 
-Finally, you can read more on our [showcase page](https://thousandbrainsproject.readme.io/docs/project-showcase)
+Finally, you can read more on our [showcase page](https://thousandbrainsproject.readme.io/docs/project-showcase).
 
 # Live Experiments and Data Collection
 
-This repository is intended to be used for further refinements to how the existing dataset is processed, including Monty's learning and inference algorithms. Collecting additional ultrasound data is complex and requires, among other things, access to a Butterly iQ3 probe and the associated SDK in order to replicate our pipeline, and familiarity with how to perform ultrasound scanning. Should you be a sufficiently motivated individual or group and you are interested in this, please see some of the details below, and feel free to contact us for further details:
+This repository is intended to be used for further refinements to how the existing dataset is processed, including Monty's learning and inference algorithms. Collecting additional ultrasound data is complex and requires, among other things, access to a Butterly iQ3 probe and the associated SDK in order to replicate our pipeline, and familiarity with how to perform ultrasound scanning. Should you be a sufficiently motivated individual or group and you are interested in this, please see some of the details below, and feel free to contact us for further details.
 
 Broadly speaking, the full pipeline requires:
 - A [Butterfly iQ3 probe](https://www.butterflynetwork.com/int/en-uk/iq3) and access to their SDK.
