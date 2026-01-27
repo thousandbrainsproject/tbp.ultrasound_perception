@@ -16,15 +16,13 @@ import sys
 def import_config_from_monty(config_file, config_name):
     """Import config from tbp.monty.
 
-    NOTE: This looks at a local copy of the defualts that used to be found in the
+    NOTE: This looks at a local copy of the defaults that used to be found in the
     tbp.monty directory.
     TODO: Remove this as part of movement to using new Hydra configs.
     """
-    # Get the directory of the current file (config_utils.py)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(current_dir, "tbp_monty_pre_hydra_configs", config_file)
 
-    # Create proper module name for package structure
     module_name = (
         f"configs.tbp_monty_pre_hydra_configs.{os.path.splitext(config_file)[0]}"
     )

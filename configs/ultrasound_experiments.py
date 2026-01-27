@@ -55,8 +55,6 @@ from custom_classes.sensor_module import UltrasoundSM
 
 from .config_utils import import_config_from_monty
 
-# Ultrasound experiments can use the models trained in simulation when inferring objects
-# in the real world.
 
 monty_models_dir = os.getenv("MONTY_MODELS")
 
@@ -121,7 +119,6 @@ base_ultrasound_experiment = {
     ),
     "logging_config": EvalEvidenceLMLoggingConfig(
         wandb_group="benchmark_experiments",
-        # Comment in for quick debugging (turns off wandb and increases logging)
         wandb_handlers=[],
         monty_log_level="BASIC",
         python_log_level="DEBUG",
@@ -185,8 +182,7 @@ base_ultrasound_experiment = {
 
 # ===== SIM-TO-REAL INFERENCE CONFIGS =====
 # Experiment for testing offline on a dataset that was collected with the ultrasound
-# probe and saved to JSON files. Can be used to experiment without having the whole
-# ultrasound and tracking set up and for repeatable experiments.
+# probe and saved to JSON files.
 
 # Experiment with a sparse sampling of the objects (50 datapoints each)
 json_dataset_ultrasound_infer_sim2real__sparse_inference = deepcopy(
@@ -282,7 +278,7 @@ json_dataset_ultrasound_dense_learning["monty_config"]["monty_class"] = (
 )
 
 # Learn with datapoints intended for inference; used to sanity check the quality of
-# the collected dataset (not expected to be sufficient samples for good performance)
+# the collected dataset, since the learned models can be inspected
 json_dataset_ultrasound_sparse_learning = deepcopy(
     json_dataset_ultrasound_dense_learning
 )
@@ -351,14 +347,11 @@ evidence_lm_config_with_gsg["learning_module_args"]["gsg_args"] = {
     # agent that is considered "close enough" to the object
 }
 
-try:
-    VIVE_SERVER_URL = os.environ.get("VIVE_SERVER_URL")
-except Exception as e:
-    print(f"Error getting VIVE_SERVER_URL from environment: {e}")
+VIVE_SERVER_URL = os.environ.get("VIVE_SERVER_URL")
+if VIVE_SERVER_URL is None:
     print(
-        "Please set the VIVE_SERVER_URL environment variable, e.g. VIVE_SERVER_URL='http://192.168.1.237:3001'"
+        "For probe triggered experiments, please set the VIVE_SERVER_URL environment variable, e.g. VIVE_SERVER_URL='http://192.168.1.237:3001'"
     )
-    sys.exit(1)
 
 POSE_ENDPOINT = f"http://{VIVE_SERVER_URL}:3001/pose"
 
@@ -401,40 +394,38 @@ base_probe_triggered_experiment["plotting_config"] = PlottingConfig(
     show_hypothesis_space=True,
 )
 
-# Collect data for offline learning - more eval steps, enabling more points to be
+# Collect dense data for offline learning - more eval steps, enabling more points to be
 # collected. NOTE that the operator should aim for a systematic exploration of the
 # object, as this will be crucial for the quality of the learned model.
-LEARNING_DATA_POINTS = 200
 probe_triggered_data_collection_for_learning = deepcopy(base_probe_triggered_experiment)
 probe_triggered_data_collection_for_learning["monty_config"]["monty_args"] = MontyArgs(
-    min_eval_steps=LEARNING_DATA_POINTS,
-    max_total_steps=LEARNING_DATA_POINTS + 1,
-    num_exploratory_steps=NUM_TRAINING_SAMPLES,
+    min_eval_steps=NUM_TRAINING_SAMPLES,
+    max_total_steps=NUM_TRAINING_SAMPLES + 1,
+    num_exploratory_steps=NUM_TRAINING_SAMPLES + 1,
 )
 probe_triggered_data_collection_for_learning["experiment_args"] = EvalExperimentArgs(
     model_name_or_path=model_path_tbp_robot_lab,
     n_eval_epochs=1,
-    max_eval_steps=LEARNING_DATA_POINTS,
+    max_eval_steps=NUM_TRAINING_SAMPLES,
 )
 
-# Collect data for offline inference - fewer eval steps, since we are interested
+# Collect sparse data for offline inference - fewer eval steps, since we are interested
 # in the ability to perform inference given a minimal exploration of the object.
 # NOTE that the operator should aim for a rapid exploration of the object, e.g.
 # frequently moving from one side of an object to the other, and making sure to include
 # features that would distinguish different objects.
-INFERENCE_DATA_POINTS = 50
 probe_triggered_data_collection_for_inference = deepcopy(
     base_probe_triggered_experiment
 )
 probe_triggered_data_collection_for_inference["monty_config"]["monty_args"] = MontyArgs(
-    min_eval_steps=INFERENCE_DATA_POINTS,
-    max_total_steps=INFERENCE_DATA_POINTS + 1,
-    num_exploratory_steps=NUM_TRAINING_SAMPLES,
+    min_eval_steps=NUM_EVAL_SAMPLES,
+    max_total_steps=NUM_EVAL_SAMPLES + 1,
+    num_exploratory_steps=NUM_EVAL_SAMPLES + 1,
 )
 probe_triggered_data_collection_for_inference["experiment_args"] = EvalExperimentArgs(
     model_name_or_path=model_path_tbp_robot_lab,
     n_eval_epochs=1,
-    max_eval_steps=INFERENCE_DATA_POINTS,
+    max_eval_steps=NUM_EVAL_SAMPLES,
 )
 
 

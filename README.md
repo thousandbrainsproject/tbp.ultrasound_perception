@@ -33,7 +33,7 @@ To create the environment, first clone the repository, then run:
 ```
 conda env create -f environment.yml --subdir=osx-64
 conda init zsh
-conda activate ultrasound_perception
+conda activate tbp.ultrasound_perception
 conda config --env --set subdir osx-64
 ```
 
@@ -41,7 +41,7 @@ conda config --env --set subdir osx-64
 ```
 conda env create -f environment.yml --subdir=osx-64
 conda init
-conda activate ultrasound_perception
+conda activate tbp.ultrasound_perception
 conda config --env --set subdir osx-64
 ```
 
@@ -49,14 +49,14 @@ conda config --env --set subdir osx-64
 ```
 conda env create -f environment.yml
 conda init zsh
-conda activate ultrasound_perception
+conda activate tbp.ultrasound_perception
 ```
 
 ### Intel (bash shell)
 ```
 conda env create -f environment.yml
 conda init
-conda activate ultrasound_perception
+conda activate tbp.ultrasound_perception
 ```
 
 # Datasets & Pre-Trained Models
@@ -102,18 +102,18 @@ Below are the benchmark results - a key aim is to investigate ways that we can i
 
 ## Benchmark Results
 
-| Experiment                                    | Object Detection Accuracy | Rotation Error (rad) | Monty Steps | Episode Time |
-| --------------------------------------------- | ------------------------- | -------------------- | --------- | -------------- |
-| real2real_dense_learning__sparse_inference    | 80.0%                     | 1.00                 | 24.2      | 5.3s          |
-| sim2real__sparse_inference                    | 30.0%                     | 2.02                 | 40.8      | 10.4s         |
-| sim2real__dense_inference                     | 60.0%                     | 2.27                 | 200.0      | 48.9s         |
+| Experiment                                    | Object Detection Accuracy | Monty Steps | Episode Time |
+| --------------------------------------------- | ------------------------- | --------- | -------------- |
+| real2real_dense_learning__sparse_inference    | 80.0%                     | 24.2      | 5.3s          |
+| sim2real__sparse_inference                    | 30.0%                     | 40.8      | 10.4s         |
+| sim2real__dense_inference                     | 60.0%                     | 200.0      | 48.9s         |
 
 **Notes:**
 - Values show the mean result for each experiment type, averaged across episodes.
 - `real` refers to ultrasound data from the real world. `sim` refers to training or inference in a simulated environment, using 3D scanned objects.
 - Object Detection Accuracy counts both "correct" and "correct_mlh" (correct most likely hypothesis) as successful detections
 - Monty terminates each episode when it is sufficiently confident, and has passed the minimum number of inference steps. In sparse experiments with 50 total possible observations, `min_eval_steps=20`, a typical value we set for Monty. For dense inference, `min_eval_steps=199` to force Monty to observe all possible observations. This enables us to estimate Monty's peformance when the number of data samples is effectively unconstrained.
-- Rotation error may not be a meaningful measure in existing experiments, in particular for sim2real. Investigating this is an outstanding Issue (TODO add link).
+- Unlike for many simulated experiments in [Monty](https://github.com/thousandbrainsproject/tbp.monty/), rotation error would not be meaningful, as we don't have access to the ground-truth rotations of the scanned objects. As such, you will not see it in the above column.
 
 TODO consider adding a sim2sim experiment as a baseline comparison
 
