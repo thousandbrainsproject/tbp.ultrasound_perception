@@ -16,6 +16,7 @@ The majority of this code was produced during the TBP Robot Hackathon in May 202
 
 - [Installation](#installation)
 - [Datasets & Pre-Trained Models](#datasets)
+- [Benchmark Results](#benchmark-results)
 - [Experiments for Training and Evaluation](#experiments-for-training-and-evaluation)
 - [Learn More & Contribute](#learn-more--contribute)
 - [Live Experiments and Data Collection](#live-experiments-and-data-collection)
@@ -95,12 +96,9 @@ You can quickly train the Monty models from scratch by running the commands prov
 
 The folder should be placed in `~/tbp/results/pretrained_models/` if you would like to use the existing configs as they are.
 
-
-# Experiments for Training and Evaluation
+# Benchmark Results
 
 Below are the benchmark results - a key aim is to investigate ways that we can improve performance on these experiments.
-
-## Benchmark Results
 
 | Experiment                                    | Object Detection Accuracy | Monty Steps | Episode Time |
 | --------------------------------------------- | ------------------------- | --------- | -------------- |
@@ -116,6 +114,8 @@ Below are the benchmark results - a key aim is to investigate ways that we can i
 - Unlike for many simulated experiments in [Monty](https://github.com/thousandbrainsproject/tbp.monty/), rotation error would not be meaningful, as we don't have access to the ground-truth rotations of the scanned objects. As such, you will not see it in the above column.
 
 TODO consider adding a sim2sim experiment as a baseline comparison
+
+# Experiments for Training and Evaluation
 
 ## Running Experiments
 
