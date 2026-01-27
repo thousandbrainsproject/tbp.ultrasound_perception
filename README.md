@@ -65,7 +65,7 @@ A number of datasets are used in the experiments within this repository. Once un
 
 ### TBP Robot Lab
 
-The ultrasound datasets below use the objects found in the [TBP Robot Lab dataset](https://github.com/thousandbrainsproject/monty_lab/tree/65d7411edda789e39bf535040dcb4fbeb1f753d8/tbp_robot_lab). This dataset consists of 10 every day objects that are relatively easy to purchase, and which can be submerged in fluid such as water (which is a requirement for ultrasound scanning). They were previously 3D scanned, either by ourselves during the [Monty Meets World hackathon](https://thousandbrainsproject.readme.io/docs/using-monty-for-robotics#example-1-monty-meets-world-ipad-app), or as part of the original creation of the [YCB dataset](https://www.ycbbenchmarks.com/object-models/). They are thus available as 3D meshes + textures that can be freely explored by Monty in a simulated environment. To train a Monty model on simulated data in Habitat, and thereby assess sim-to-real (i.e., sim-to-ultrasound) performance, you will need this dataset.
+The ultrasound datasets below use the objects found in the [TBP Robot Lab dataset](https://github.com/thousandbrainsproject/monty_lab/tree/65d7411edda789e39bf535040dcb4fbeb1f753d8/tbp_robot_lab). This dataset consists of 10 everyday objects that are relatively easy to purchase, and which can be submerged in fluid such as water (which is a requirement for ultrasound scanning). They were previously 3D scanned, either by ourselves during the [Monty Meets World hackathon](https://thousandbrainsproject.readme.io/docs/using-monty-for-robotics#example-1-monty-meets-world-ipad-app), or as part of the original creation of the [YCB dataset](https://www.ycbbenchmarks.com/object-models/). They are thus available as 3D meshes + textures that can be freely explored by Monty in a simulated environment. To train a Monty model on simulated data in Habitat, and thereby assess sim-to-real (i.e., sim-to-ultrasound) performance, you will need this dataset.
 
 [Download the TBP Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/tbp_robot_lab.zip)
 
@@ -85,7 +85,7 @@ The sparse dataset consists of 50 individual observations for each object. Durin
 
 [Download Sparse Ultrasound Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_sparse.zip)
 
-Note that if you inspect the downloaded ultrasound folders, you will notice that their contents are very different from TBP Robot Lab, because the ultrasound datasets consist of `.json` files that store individual ultrasound images paired with position-tracking data. This is thus different from the 3D meshes which underly many other datasets currently used by Monty (including TBP Robot Lab). This is also why the sequence of observations for the ultrasound objects are fixed, unless you choose to implement a custom dataloader that samples them in an alternative order.
+Note that if you inspect the downloaded ultrasound folders, you will notice that their contents are very different from TBP Robot Lab, because the ultrasound datasets consist of `.json` files that store individual ultrasound images paired with position-tracking data. This is thus different from the 3D meshes that underlie many other datasets currently used by Monty (including TBP Robot Lab). This is also why the sequence of observations for the ultrasound objects is fixed, unless you choose to implement a custom dataloader that samples them in an alternative order.
 
 ### Pre-trained models
 
@@ -102,9 +102,7 @@ Once you have the above datasets (and optionally, pre-trained models), you can r
 
 ## Benchmark Results
 
-Table here - TODO; see format for 
-
-Also commit the base CSV files
+TODO add results table here; also commit the base CSV files
 
 ## Running Experiments
 
@@ -153,7 +151,7 @@ TODO move notebook and figure documentation to separate folders
 
 # Learn More & Contribute
 
-You can find more information on how we customized Monty for this usecase in the writeup [here](./custom_classes/How_Monty_is_Customized.md).
+You can find more information on how we customized Monty for this use case in the writeup [here](./custom_classes/How_Monty_is_Customized.md).
 
 We will be recording a video shortly with an overview of this repository and our results: TODO to the video here.
 
