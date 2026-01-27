@@ -61,11 +61,13 @@ from .config_utils import import_config_from_monty
 monty_models_dir = os.getenv("MONTY_MODELS")
 
 if monty_models_dir is None:
-    monty_models_dir = os.path.expanduser("~/tbp/results/pretrained_models/")
+    monty_models_dir = "~/tbp/results/pretrained_models/"
     print(
         "MONTY_MODELS environment variable not set, using default directory: ",
         monty_models_dir,
     )
+
+monty_models_dir = os.path.expanduser(monty_models_dir)
 
 ultrasound_pretrain_dir = os.path.join(monty_models_dir, "ultrasound_robot_lab_v1")
 
@@ -202,7 +204,7 @@ json_dataset_ultrasound_infer_sim2real__dense_inference.update(
     experiment_args=EvalExperimentArgs(
         model_name_or_path=model_path_tbp_robot_lab,
         n_eval_epochs=1,
-        max_eval_steps=NUM_EVAL_SAMPLES,
+        max_eval_steps=NUM_TRAINING_SAMPLES,
     ),
 )
 json_dataset_ultrasound_infer_sim2real__dense_inference["monty_config"][
