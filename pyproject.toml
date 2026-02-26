@@ -44,7 +44,7 @@ dependencies = [
 description = "Monty for Ultrasound Demo - TBP Hackathon 2025"
 dynamic = ["version"]
 license = { file = "LICENSE" }
-name = "itsnotatumah"
+name = "tbp.ultrasound_perception"
 readme = "README.md"
 
 [project.optional-dependencies]
@@ -65,8 +65,8 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/thousandbrainsproject/itsnotatumah"
-Issues = "https://github.com/thousandbrainsproject/itsnotatumah/issues"
+Repository = "https://github.com/thousandbrainsproject/tbp.ultrasound_perception"
+Issues = "https://github.com/thousandbrainsproject/tbp.ultrasound_perception/issues"
 
 [tool.deptry]
 exclude = ["venv", "\\.venv", "\\.direnv", "\\.git", "setup\\.py"]

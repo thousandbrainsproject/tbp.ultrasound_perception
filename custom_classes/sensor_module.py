@@ -44,7 +44,7 @@ class UltrasoundSM(SensorModuleBase):
             self.extract_patch_pose_feat(data["img"])
         )
 
-        # Derive depth from pixel location in image
+        # Derive depth from pixel location in image (in meters)
         pixel_depth_in_image = data["patch_pixel_start"] + pixel_depth_in_patch
         data["patch_depth"] = self.get_depth_from_pixel_location(
             data["full_image_height"], pixel_depth_in_image

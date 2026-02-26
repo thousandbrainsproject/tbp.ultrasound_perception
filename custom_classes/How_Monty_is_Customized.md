@@ -6,9 +6,10 @@ To use Monty for Ultrasound, we had to customize several classes:
 -  `UltrasoundEnvironment`: Loads ultrasound image from folder and returns it as observation dictionary. In our experiments we usually use one of two subclasses of this environment:
    -  `ProbeTriggeredUltrasoundEnvironment`: Streams observations from live server to Monty. Whenever the experimenter presses the main button on the ultrasound probe, a new image and tracker locations are sent to Monty.
    -  `JSONDatasetUltrasoundEnvironment`: Loads step-wise observations (image + tracker data) from .json files. This environment can be used for offline testing (doesn't require an ultrasound setup and live data streaming).
--  `UltrasoundDataloader`: Receives the full ultrasound image and extracts a patch to send to the sensor module.
+-  `UltrasoundDataloader`: Receives the full ultrasound image and extracts a patch to send to the sensor module. Also cycles between ultrasound objects in an experiment.
 - `UltrasoundSM`: A sensor module specialize on extracting pose and features from an ultrasound image and combining it with tracker information to get a CMP message.
 - `UltrasoundMotorPolicy`: Combines the `InformedPolicy` with the `JumpToGoalStateMixin`. Generally actions are executed by the human experimenter but Monty is able to suggest goal states (locations to move to) to the experimenter.
+- `MontyUltrasoundSupervisedObjectPretrainingExperiment`, and `UltrasoundExperiment`: Experiment classes that support supervised learning and inference experiments with ultrasound data.
 
 ![Custom classes shown with dashed boarders.](./figures/CustomClassesOverview.png#width=300px)
 

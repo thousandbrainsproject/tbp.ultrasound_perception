@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 import urllib.parse
+from collections import deque
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
@@ -17,12 +18,7 @@ import openvr
 from scipy.spatial.transform import Rotation
 
 # Global variable to store the latest pose data and a lock for thread-safe access
-latest_pose_data = {
-    "timestamp": 0.0,
-    "pose_matrix": None,
-    "is_valid": False,
-    "serial_number": "",
-}
+pose_history = deque(maxlen=100)  # Store last 100 pose observations
 pose_lock = threading.Lock()
 shutdown_event = threading.Event()
 
@@ -42,6 +38,29 @@ def find_first_tracker_index(vr_sys):
     return None
 
 
+def find_nearest_pose_by_timestamp(target_epoch):
+    """Find the pose observation with the closest timestamp to target_epoch."""
+    if not pose_history:
+        return None
+    
+    best_match = None
+    min_time_diff = float('inf')
+    best_match_index = None
+    
+    for i, pose_data in enumerate(pose_history):
+        time_diff = abs(pose_data["timestamp"] - target_epoch)
+        if time_diff < min_time_diff:
+            min_time_diff = time_diff
+            best_match = pose_data
+            best_match_index = i
+    
+    if best_match_index is not None:
+        steps_from_back = len(pose_history) - 1 - best_match_index
+        print(f"Selected pose is {steps_from_back} steps from the back")
+    
+    return best_match
+
+
 # -----------------------------------------------------------------------------#
 # Vive Tracker Thread
 # -----------------------------------------------------------------------------#
@@ -51,7 +70,7 @@ class ViveTrackerThread(threading.Thread):
         self.name = "ViveTrackerThread"
 
     def run(self):
-        global latest_pose_data
+        global pose_history
         vr_sys = None
         try:
             openvr.init(openvr.VRApplication_Other)
@@ -63,16 +82,12 @@ class ViveTrackerThread(threading.Thread):
                 print(
                     "No VIVE Tracker detected. Check if it is powered on and in view of the base-stations."
                 )
-                with pose_lock:
-                    latest_pose_data["is_valid"] = False
                 return
 
             serial = vr_sys.getStringTrackedDeviceProperty(
                 tracker_index, openvr.Prop_SerialNumber_String
             )
             print(f"Using tracker index {tracker_index} (serial {serial})")
-            with pose_lock:
-                latest_pose_data["serial_number"] = serial
 
             while not shutdown_event.is_set():
                 current_time_epoch = time.time()
@@ -88,10 +103,15 @@ class ViveTrackerThread(threading.Thread):
                     [float(val) for val in row] for row in p.mDeviceToAbsoluteTracking
                 ]
 
+                pose_data = {
+                    "timestamp": current_time_epoch,
+                    "pose_matrix": pose_matrix,
+                    "is_valid": p.bPoseIsValid,
+                    "serial_number": serial,
+                }
+
                 with pose_lock:
-                    latest_pose_data["timestamp"] = current_time_epoch
-                    latest_pose_data["pose_matrix"] = pose_matrix
-                    latest_pose_data["is_valid"] = p.bPoseIsValid
+                    pose_history.append(pose_data)
 
                 if p.bPoseIsValid:
                     # Print to console for debugging
@@ -107,15 +127,11 @@ class ViveTrackerThread(threading.Thread):
 
         except openvr.OpenVRError as e:
             print(f"OpenVR Error in ViveTrackerThread: {e}", file=sys.stderr)
-            with pose_lock:
-                latest_pose_data["is_valid"] = False
         except Exception as e:
             print(
                 f"An unexpected error occurred in ViveTrackerThread: {e}",
                 file=sys.stderr,
             )
-            with pose_lock:
-                latest_pose_data["is_valid"] = False
         finally:
             if vr_sys:
                 print("Shutting down OpenVR in ViveTrackerThread...")
@@ -142,41 +158,41 @@ class PoseHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        global latest_pose_data
+        global pose_history
 
         print(f"Received GET request from {self.client_address[0]} for {self.path}")
 
         parsed_path = urllib.parse.urlparse(self.path)
 
         if parsed_path.path == "/pose":
-            # response_data = {
-            #     "data": {
-            #         "timestamp": time.time(),
-            #         "pose": {
-            #             "position": {"x": 0.1, "y": 0.2, "z": 0.3},
-            #             "rotation": {"w": 1.0, "x": 0.0, "y": 0.0, "z": 0.0},
-            #         },
-            #         "serial_number": "FAKE_SERIAL_123",
-            #     }
-            # }
-            # self.send_response(200)
-            # self.send_header("Content-type", "application/json")
-            # self.end_headers()
-            # self.wfile.write(json.dumps(response_data).encode("utf-8"))
-            # return
-
-            # query_params = urllib.parse.parse_qs(parsed_path.query)
-            # requested_epoch = query_params.get('epoch', [None])[0]
-            # For now, we ignore requested_epoch and return the latest
-
+            query_params = urllib.parse.parse_qs(parsed_path.query)
+            requested_epoch = query_params.get('epoch', [None])[0]
+            
             with pose_lock:
-                timestamp = latest_pose_data["timestamp"]
-                pose_matrix = latest_pose_data["pose_matrix"]
-                is_valid = latest_pose_data["is_valid"]
+                if requested_epoch is not None:
+                    try:
+                        target_epoch = float(requested_epoch)
+                        pose_data = find_nearest_pose_by_timestamp(target_epoch)
+                        print(f"Found pose data with temporal difference {abs(pose_data['timestamp'] - target_epoch):.6f} seconds")
+                    except ValueError:
+                        self.send_response(400)
+                        self.send_header("Content-type", "application/json")
+                        self._set_cors_headers()
+                        self.end_headers()
+                        error_payload = {"error": "Invalid epoch parameter format"}
+                        self.wfile.write(json.dumps(error_payload).encode("utf-8"))
+                        return
+                else:
+                    # If no epoch provided, return the most recent pose
+                    # Note this is expected, for example, when no image was captured,
+                    # and thus this will simply return the most recent pose
+                    pose_data = pose_history[-1] if pose_history else None
+                    print(f"No epoch provided, returning the most recent pose")
 
-            if is_valid and pose_matrix:
+            if pose_data and pose_data["is_valid"] and pose_data["pose_matrix"]:
                 try:
                     # Position
+                    pose_matrix = pose_data["pose_matrix"]
                     pos_x = pose_matrix[0][3]
                     pos_y = pose_matrix[1][3]
                     pos_z = pose_matrix[2][3]
@@ -196,12 +212,12 @@ class PoseHTTPRequestHandler(BaseHTTPRequestHandler):
 
                     response_data = {
                         "data": {
-                            "timestamp": timestamp,
+                            "timestamp": pose_data["timestamp"],
                             "pose": {
                                 "position": position,
                                 "rotation": rotation_quat,
                             },
-                            "serial_number": latest_pose_data.get("serial_number", ""),
+                            "serial_number": pose_data.get("serial_number", ""),
                         }
                     }
                     self.send_response(200)
@@ -227,8 +243,6 @@ class PoseHTTPRequestHandler(BaseHTTPRequestHandler):
                 self._set_cors_headers()
                 self.end_headers()
                 error_payload = {"error": "Tracker pose not available or invalid"}
-                if latest_pose_data.get("serial_number"):
-                    error_payload["serial_number"] = latest_pose_data["serial_number"]
                 self.wfile.write(json.dumps(error_payload).encode("utf-8"))
         else:
             self.send_response(404)

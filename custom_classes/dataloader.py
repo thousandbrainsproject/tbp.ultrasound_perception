@@ -23,19 +23,7 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
     def __init__(self, patch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patch_size = patch_size
-        # NOTE: We don't have ground truth rotation for the object so just use 0.
-        euler_rotation = np.zeros(3)
-        q = Rotation.from_euler("xyz", euler_rotation, degrees=True).as_quat()
-        quat_rotation = scipy_to_numpy_quat(q)
-        self.primary_target = {
-            "object": "new_object0",
-            "semantic_id": 0,
-            "rotation": quat_rotation,
-            "euler_rotation": euler_rotation,
-            "quat_rotation": q,
-            "position": np.zeros(3),
-            "scale": np.ones(3),
-        }
+        self.episode_counter = 0
 
     def __iter__(self):
         # Reset the environment before iterating
@@ -164,8 +152,10 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
 
             # Note we use the initial y position of the patch for the depth,
             # as later we will determine the location of the edge within the patch for
-            # the final depth reading
-            starting_y = y - test_patch_size // 2
+            # the final depth reading; note this should use the patch_size, not the
+            # test_patch_size, as it defines the starting y of the patch that we 
+            # will return
+            starting_y = y - patch_size // 2
             y_starting_positions.append(starting_y)
             y_central_positions.append(y)
             gradients.append(total_gradient)
@@ -298,5 +288,34 @@ class UltrasoundDataLoader(EnvironmentDataLoader):
 
         return best_patch, y_start
 
+    def change_object_by_idx(self, idx):
+        # NOTE: We don't have ground truth rotation for the object so just use 0.
+        euler_rotation = np.zeros(3)
+        q = Rotation.from_euler("xyz", euler_rotation, degrees=True).as_quat()
+        quat_rotation = scipy_to_numpy_quat(q)
+        self.primary_target = {
+            "object": self.dataset.env.object_names[idx],
+            "semantic_id": 0,
+            "rotation": quat_rotation,
+            "euler_rotation": euler_rotation,
+            "quat_rotation": q,
+            "position": np.zeros(3),
+            "scale": np.ones(3),
+        }
+
+    def pre_epoch(self):
+        self.change_object_by_idx(idx=self.episode_counter)
+
     def post_episode(self):
+        """
+        Call the environment to update the "scene" (load the next folder with the
+        next scanned object), while updating the corresponding primary target
+        via the change_object_by_idx method.
+        """
+        self.episode_counter += 1
         self.dataset.env.switch_to_next_scene()
+
+        if self.episode_counter < len(self.dataset.env.object_names):
+            self.change_object_by_idx(idx=self.episode_counter)
+        else:
+            print("Reached the end of the dataset. Stopping experiment.")

@@ -14,9 +14,9 @@
 # you open a new terminal, run:
 #     $ conda config --set auto_activate_base false
 # Finally, activate the environment with:
-#     $ conda activate itsnotatumah
+#     $ conda activate tbp.ultrasound_perception
 #
-name: itsnotatumah
+name: tbp.ultrasound_perception
 channels:
   - aihabitat
   - pytorch

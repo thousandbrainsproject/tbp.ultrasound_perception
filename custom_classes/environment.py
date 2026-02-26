@@ -45,7 +45,14 @@ class UltrasoundEnvironment(EmbodiedEnvironment):
         self.data_path = data_path
         self.full_image = None  # Store the full image for plotting
 
-        self.scene_names = [a for a in os.listdir(self.data_path) if a[0] != "."]
+        # Scene names used to load the next ultrasound image
+        self.scene_names = sorted(
+            [a for a in os.listdir(self.data_path) if a[0] != "."]
+        )
+
+        # Strip the number from the scene names such that 002_montys_brain becomes montys_brain, etc.
+        self.object_names = ["_".join(name.split("_")[1:]) for name in self.scene_names]
+
         self.current_scene = 0
         self.step_count = 0
 
@@ -215,7 +222,12 @@ class JSONDatasetUltrasoundEnvironment(UltrasoundEnvironment):
         """Load the next ultrasound image from the dataset."""
         try:
             with open(
-                os.path.join(self.data_path, f"{self.step_count}.json"), "r"
+                os.path.join(
+                    self.data_path,
+                    f"{self.scene_names[self.current_scene]}",
+                    f"{self.step_count}.json",
+                ),
+                "r",
             ) as f:
                 data = json.load(f)
         except FileNotFoundError:
@@ -226,9 +238,8 @@ class JSONDatasetUltrasoundEnvironment(UltrasoundEnvironment):
         # Overwrite the position of the probe.
         # TODO: can remove this now that it is added to the ProbeTriggeredUltrasoundEnvironment
         # (If used during data collection)
-        # TODO: this just looked like it gave the best results but it is not ideal yet.
         data["state"]["agent_id_0"]["sensors"]["ultrasound"]["position"] = np.array(
-            [0, 0.029, 0.084]
+            [0, 0.028, 0.105]
         )
         return data["obs"], data["state"]
 

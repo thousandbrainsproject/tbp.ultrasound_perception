@@ -18,16 +18,15 @@ from vpython import arrow, box, button, canvas, color, mag, rate, vector
 # -----------------------------------------------------------------------------#
 # Configuration
 # -----------------------------------------------------------------------------#
-try:
-    VIVE_SERVER_URL = os.environ.get("VIVE_SERVER_URL")
-except Exception as e:
-    print(f"Error getting VIVE_SERVER_URL from environment: {e}")
+VIVE_SERVER_URL = os.environ.get("VIVE_SERVER_URL")
+if VIVE_SERVER_URL is None:
+    print(f"Error getting VIVE_SERVER_URL from environment.")
     print(
         "Please set the VIVE_SERVER_URL environment variable, e.g. VIVE_SERVER_URL='http://192.168.1.237:3001'"
     )
     sys.exit(1)
-
-POSE_ENDPOINT = f"{VIVE_SERVER_URL}/pose"
+else:
+    POSE_ENDPOINT = f"http://{VIVE_SERVER_URL}:3001/pose"
 
 # Global variable to store the latest goal state
 latest_goal_state = None
