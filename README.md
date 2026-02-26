@@ -10,7 +10,7 @@ This codebase is for exploring the application of [Monty](https://github.com/tho
 
 *An example of a model learned by Monty from ultrasound data, as well as the underlying object ❤️*
 
-The majority of this code was produced during the TBP Robot Hackathon in May 2025, with further refinements since then. As such, it currently relies on an old version of Monty. There are many ways in which the codebase could be further improved (see [Learn More & Contribute](#learn-more--contribute)), and we are hoping this is something that others take part in!
+The majority of this code was produced during the [TBP Robot Hackathon in May 2025](https://thousandbrains.org/2025-05-robot-hackathon/), with further refinements since then. As such, it currently relies on an old version of Monty. There are many ways in which the codebase could be further improved (see [Learn More & Contribute](#learn-more--contribute)), and we are hoping this is something that others take part in!
 
 # Table of Contents
 
