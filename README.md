@@ -112,8 +112,7 @@ Below are results from the key experiments we are interested in - a primary aim 
 - Object Detection Accuracy counts both "correct" and "correct_mlh" (correct most likely hypothesis) as successful detections
 - Monty terminates each episode when it is sufficiently confident, and has passed the minimum number of inference steps. In sparse experiments with 50 total possible observations, `min_eval_steps=20`, a typical value we set for Monty. For dense inference, `min_eval_steps=199` to force Monty to observe all possible observations. This enables us to estimate Monty's peformance when the number of data samples is effectively unconstrained.
 - Unlike for many simulated experiments in [Monty](https://github.com/thousandbrainsproject/tbp.monty/), rotation error would not be meaningful, as we don't have access to the ground-truth rotations of the scanned objects. As such, you will not see it in the above column.
-
-TODO consider adding a sim2sim experiment as a baseline comparison
+- For a sense of what "sim2sim" performance would look like, you can see the results from the [tbp_robot_lab experiments](https://github.com/thousandbrainsproject/monty_lab/tree/main/tbp_robot_lab#inference-in-simulation). Accuracy is generally around 95%.
 
 # Experiments for Training and Evaluation
 

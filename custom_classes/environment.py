@@ -238,7 +238,6 @@ class JSONDatasetUltrasoundEnvironment(UltrasoundEnvironment):
         # Overwrite the position of the probe.
         # TODO: can remove this now that it is added to the ProbeTriggeredUltrasoundEnvironment
         # (If used during data collection)
-        # TODO: this just looked like it gave the best results but it is not ideal yet.
         data["state"]["agent_id_0"]["sensors"]["ultrasound"]["position"] = np.array(
             [0, 0.028, 0.105]
         )
