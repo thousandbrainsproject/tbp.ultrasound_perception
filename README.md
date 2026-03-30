@@ -138,16 +138,22 @@ To pretrain Monty on the dense ultrasound dataset:
 python run.py -e json_dataset_ultrasound_dense_learning
 ```
 
+To run inference on the sparse ultrasound dataset with Monty pretrained on the dense ultrasound dataset:
+
+```bash
+python run.py -e json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference
+```
+
 To run inference on the sparse ultrasound dataset with Monty pretrained on the simulated 3D objects:
 
 ```bash
 python run.py -e json_dataset_ultrasound_infer_sim2real__sparse_inference
 ```
 
-To run inference on the sparse ultrasound dataset with Monty pretrained on the dense ultrasound dataset:
+The last benchmark experiment (inference on the *dense* ultrasound dataset with Monty pretrained on the simulated 3D objects:
 
 ```bash
-python run.py -e json_dataset_ultrasound_infer_real2real_dense_learning__sparse_inference
+python run.py -e json_dataset_ultrasound_infer_sim2real__dense_inference
 ```
 
 Note that the existing experiment configs make use of default values provided in the `tbp_monty_pre_hydra_configs` directory (where Hydra refers to the recent shift in `tbp.monty` to [Hydra](https://hydra.cc/docs/intro/)). Cleaning up configs and updating to use Hydra throughout, without these defaults, is one of the many existing open Issues for this repository (see [Learn More & Contribute](#learn-more--contribute)).
