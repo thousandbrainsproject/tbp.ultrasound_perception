@@ -6,7 +6,7 @@ This codebase is for exploring the application of [Monty](https://github.com/tho
 
 [Monty is a sensorimotor system](https://arxiv.org/abs/2412.18354) with [a variety of exciting capabilities](https://arxiv.org/abs/2507.04494). Medical ultrasound is an inherently sensorimotor form of clinical imaging, and [automated ultrasound would make medical diagnostics more accessible around the world](https://www.gatesfoundation.org/ideas/science-innovation-technology/future-womens-health-technology/ai-ultrasounds). If you're interested in applying Monty to real-world data, or curious about long-term medical applications of Monty, then you're in the right place!
 
-<img src="./custom_classes/figures/SampleScan.png" width="600"/>
+<img src="./documentation/figures/SampleScan.png" width="600"/>
 
 *An example of a model learned by Monty from ultrasound data, as well as the underlying object ❤️*
 
@@ -76,15 +76,15 @@ There are two ultrasound datasets, one with "dense" samples, and one with "spars
 
 The dense dataset consists of 200 individual observations for each object. During scanning, a systematic policy was used by the human operator to densely cover as much of an object's surface as possible. This should generally be viewed as a "training" dataset when Monty is learning on ultrasound data.
 
-The sparse dataset consists of 50 individual observations for each object. During scanning, an "inference-focused" policy was used by the human operator, which involved moving relatively quickly from one part of an object to another distant part. For example, after exploring the handle of the coffee mug, the operator would move to the rim, and then to an area near the base of the mug. Due to this policy and the number of observations, the surface is not sampled nearly as densely. As such, this is best viewed as a "testing"/inference-time dataset, either for sim-to-real or real-to-real evaluations.
+The sparse dataset consists of 50 individual observations for each object. During scanning, an "inference-focused" policy was used by the human operator, which involved moving relatively quickly from one part of an object to another, distant part. For example, after exploring the handle of the coffee mug, the operator would move to the rim, and then to an area near the base of the mug. Due to this policy and the number of observations, the surface is not sampled nearly as densely. As such, this is best viewed as a "testing"/inference-time dataset, either for sim-to-real or real-to-real evaluations.
 
-<img src="./custom_classes/figures/SampleScanDenseVsSparse.png" width="600"/>
+<img src="./documentation/figures/SampleScanDenseVsSparse.png" width="600"/>
 
 *Example models learned by Monty for the rubber heart when provided with either the dense or the sparse data samples.*
 
 [Download the Dense Ultrasound Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_dense.zip)
 
-[Download Sparse Ultrasound Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_sparse.zip)
+[Download the Sparse Ultrasound Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_sparse.zip)
 
 Note that if you inspect the downloaded ultrasound folders, you will notice that their contents are very different from TBP Robot Lab, because the ultrasound datasets consist of `.json` files that store individual ultrasound images paired with position-tracking data. This is thus different from the 3D meshes that underlie many other datasets currently used by Monty (including TBP Robot Lab). This is also why the sequence of observations for the ultrasound objects is fixed, unless you choose to implement a custom dataloader that samples them in an alternative order.
 
@@ -109,7 +109,7 @@ Below are results from the key experiments we are interested in - a primary aim 
 **Notes:**
 - Values show the mean result for each experiment type, averaged across episodes.
 - `real` refers to ultrasound data from the real world. `sim` refers to training or inference in a simulated environment, using 3D scanned objects.
-- Object Detection Accuracy counts both "correct" and "correct_mlh" (correct most likely hypothesis) as successful detections
+- Object Detection Accuracy counts both "correct" and "correct_mlh" (correct most likely hypothesis) as successful detections.
 - Monty terminates each episode when it is sufficiently confident, and has passed the minimum number of inference steps. In sparse experiments with 50 total possible observations, `min_eval_steps=20`, a typical value we set for Monty. For dense inference, `min_eval_steps=199` to force Monty to observe all possible observations. This enables us to estimate Monty's peformance when the number of data samples is effectively unconstrained.
 - Unlike for many simulated experiments in [Monty](https://github.com/thousandbrainsproject/tbp.monty/), rotation error would not be meaningful, as we don't have access to the ground-truth rotations of the scanned objects. As such, you will not see it in the above column.
 - For a sense of what "sim2sim" performance would look like, you can see the results from the [tbp_robot_lab experiments](https://github.com/thousandbrainsproject/monty_lab/tree/main/tbp_robot_lab#inference-in-simulation). Accuracy is generally around 95%.
@@ -158,11 +158,9 @@ After you run an experiment, you can see the results by going to `~/tbp/results/
 
 We have also provided a Jupyter notebook in this repository (`VisualizeModels.ipynb`), which you may find helpful in visualizing and comparing learned models.
 
-TODO move notebook and figure documentation to separate folders
-
 # Learn More & Contribute
 
-You can find more information on how we customized Monty for this use case in the writeup [here](./custom_classes/How_Monty_is_Customized.md).
+You can find more information on how we customized Monty for this use case in the writeup [here](./documentation/How_Monty_is_Customized.md).
 
 We will be recording a video shortly with an overview of this repository and our results: TODO link to the video here.
 
@@ -220,7 +218,7 @@ To perform inference or data-collection with the first object
 
 Ensure the tracker is attached to the probe, and matches the following orientation (two "legs" towards front of probe):
 
-<img src="./custom_classes/figures/tracker_orientation.png" width="200"/>
+<img src="./documentation/figures/tracker_orientation.png" width="200"/>
 
 
 You should also position the tracker puck such that its center, relative to the probe tip, is: ~10.5cm in the long axis and ~2.8cm in the short axis of the probe. If you position the tracker differently, you will need to measure the offset between the tracker and probe tip and adjust the ultrasound sensor relative to the agent position in the `get_state` method of `ProbeTriggeredUltrasoundEnvironment`, as well as `load_next_data_point` in `JSONDatasetUltrasoundEnvironment`.
@@ -232,7 +230,7 @@ You should also position the tracker puck such that its center, relative to the 
 - Using the visualization that pops up, position the probe at the base of the phantom bag as shown below, the click the calibration button
 
 
-<img src="./custom_classes/figures/tracker_relative_bag.png" width="200"/>
+<img src="./documentation/figures/tracker_relative_bag.png" width="200"/>
 
 You should see this change reflected in the visualization service. Note this visualization is only for the operator's benefit, and to enable interpreting "goal-states" sent by Monty; it does not affect the measured locations or displacements within Monty as the probe moves.
 
