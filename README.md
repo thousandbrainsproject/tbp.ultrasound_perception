@@ -150,7 +150,7 @@ To run inference on the sparse ultrasound dataset with Monty pretrained on the s
 python run.py -e json_dataset_ultrasound_infer_sim2real__sparse_inference
 ```
 
-The last benchmark experiment (inference on the *dense* ultrasound dataset with Monty pretrained on the simulated 3D objects:
+For the last benchmark experiment (inference on the *dense* ultrasound dataset with Monty pretrained on the simulated 3D objects), run:
 
 ```bash
 python run.py -e json_dataset_ultrasound_infer_sim2real__dense_inference
