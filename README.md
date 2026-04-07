@@ -74,13 +74,19 @@ The ultrasound datasets below use the objects found in the [TBP Robot Lab datase
 
 There are two ultrasound datasets, one with "dense" samples, and one with "sparse" samples. Both consist of ultrasound scans of the 10 Robot Lab objects, along with tracking data for the ultrasound probe that was used. The files contain a fixed sequence of observations, which will be experienced in the same order whenever an object in the dataset is loaded. Note that each object was only ever scanned in a single orientation.
 
-The dense dataset consists of 200 individual observations for each object. During scanning, a systematic policy was used by the human operator to densely cover as much of an object's surface as possible. This should generally be viewed as a "training" dataset when Monty is learning on ultrasound data.
+The dense dataset consists of 200 individual observations for each object. During scanning, a systematic policy was used by the human operator to densely cover as much of an object's surface as possible. This should generally be viewed as a "training" dataset when Monty is learning on ultrasound data. You can get a sense of the density of the data samples, as well as the corresponding physical objects, from the image below showing Monty's learned models:
 
-The sparse dataset consists of 50 individual observations for each object. During scanning, an "inference-focused" policy was used by the human operator, which involved moving relatively quickly from one part of an object to another, distant part. For example, after exploring the handle of the coffee mug, the operator would move to the rim, and then to an area near the base of the mug. Due to this policy and the number of observations, the surface is not sampled nearly as densely. As such, this is best viewed as a "testing"/inference-time dataset, either for sim-to-real or real-to-real evaluations.
+<img src="./documentation/figures/DenseDatasetPreview.png" width="800"/>
+
+The sparse dataset consists of 50 individual observations for each object. During scanning, an "inference-focused" policy was used by the human operator, which involved moving relatively quickly from one part of an object to another, distant part. For example, after exploring the handle of the coffee mug, the operator would move to the rim, and then to an area near the base of the mug. Due to this policy and the number of observations, the surface is not sampled nearly as densely. As such, this is best viewed as a "testing"/inference-time dataset, either for sim-to-real or real-to-real evaluations. You can get a sense of the sparsity of these data samples from the learned models in the image below:
+
+<img src="./documentation/figures/SparseDatasetPreview.png" width="800"/>
+
+A side-by-side comparison of dense and sparse data samples is shown in the image below. Here we see the learned rubber heart models when Monty is given the dense vs. the sparse data samples:
 
 <img src="./documentation/figures/SampleScanDenseVsSparse.png" width="600"/>
 
-*Example models learned by Monty for the rubber heart when provided with either the dense or the sparse data samples.*
+#### Download Links
 
 [Download the Dense Ultrasound Robot Lab dataset from AWS (.zip file)](https://tbp-data-public-5e789bd48e75350c.s3.us-east-2.amazonaws.com/tbp.monty/ultrasound_robot_lab_dense.zip)
 
@@ -168,9 +174,9 @@ We have also provided a Jupyter notebook in this repository (`VisualizeModels.ip
 
 You can find more information on how we customized Monty for this use case in the writeup [here](./documentation/How_Monty_is_Customized.md).
 
-We will be recording a video shortly with an overview of this repository and our results: TODO link to the video here.
+A [video providing an overview of this repository and the datasets is available here](https://www.youtube.com/watch?v=qhrHyTYVPgo).
 
-You can see the [video presentation from the original hackathon here](https://youtu.be/-zrq0oTJudo).
+You can also see the [video presentation from the original hackathon here](https://youtu.be/-zrq0oTJudo).
 
 There are lots of exciting ways that this repository can be improved, including changes that will have a direct impact on Monty's performance. These are all provided under the open Issues within this repository. If you have any questions, [please get in touch with the TBP team on Discourse](https://thousandbrains.discourse.group/).
 
